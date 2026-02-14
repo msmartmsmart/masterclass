@@ -5,25 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Design for LLMs and Humans — AI Design Masterclass</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
   :root {
-    --bg: #f8f8f8;
-    --fg: #1A1A1A;
+    --bg: #fafafa;
+    --fg: #111;
     --muted: #666;
-    --accent: #D93C00;
-    --accent-soft: #fdf0eb;
-    --border: #e7e8e8;
+    --accent: #0057ff;
+    --accent-soft: #e8efff;
+    --border: #e0e0e0;
     --card-bg: #fff;
-    --gradient-1: #D93C00;
-    --gradient-2: #2B333F;
+    --gradient-1: #0057ff;
+    --gradient-2: #7c3aed;
     --radius: 12px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
-    font-family: 'DM Sans', -apple-system, sans-serif;
+    font-family: 'Inter', -apple-system, sans-serif;
     background: var(--bg);
     color: var(--fg);
     line-height: 1.6;
@@ -261,7 +261,7 @@
 
   /* --- Takeaway --- */
   .takeaway-box {
-    background: linear-gradient(135deg, #D93C0008, #2B333F08);
+    background: linear-gradient(135deg, #0057ff08, #7c3aed08);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 3rem;
@@ -322,8 +322,6 @@
     gap: 1rem;
   }
 
-  footer img { height: 20px; opacity: .6; }
-
   /* --- Code blocks --- */
   .code-example {
     background: #1a1a2e;
@@ -337,7 +335,7 @@
     margin-top: 1rem;
   }
 
-  .code-example .tag { color: #D93C00; }
+  .code-example .tag { color: #7c3aed; }
   .code-example .attr { color: #0ea5e9; }
   .code-example .val { color: #22c55e; }
   .code-example .comment { color: #555; }
@@ -400,8 +398,6 @@
 
 <!-- ======== HERO ======== -->
 <div class="hero">
-  <div style="margin-bottom:1.5rem;"><img src="https://www.mai-group.com/_assets/91371efa3afb5d4101de572cee05d1c9/Images/Logos/logo-mai-group.svg" alt="MAI Group" style="height:32px;"></div>
-  <div style="margin-bottom:1.5rem;"><img src="https://www.mai-group.com/_assets/91371efa3afb5d4101de572cee05d1c9/Images/Logos/logo-mai-group.svg" alt="MAI Group" style="height:40px;"></div>
   <div class="hero-badge">Masterclass · Intermediate</div>
   <h1>Design for <span>LLMs</span><br>and Humans</h1>
   <p class="hero-sub">
@@ -413,7 +409,7 @@
     <div>🛠 Hands-on Workshop</div>
     <div>🎯 Intermediate Level</div>
   </div>
-  <a href="masterclass.html" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:2rem;padding:.85rem 2rem;background:linear-gradient(135deg,#D93C00,#2B333F);color:#fff;text-decoration:none;font-weight:600;font-size:1rem;border-radius:100px;width:fit-content;transition:filter .15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">→ Masterclass starten</a>
+  <a href="masterclass.html" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:2rem;padding:.85rem 2rem;background:linear-gradient(135deg,#0057ff,#7c3aed);color:#fff;text-decoration:none;font-weight:600;font-size:1rem;border-radius:100px;width:fit-content;transition:filter .15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">→ Masterclass starten</a>
   <div class="scroll-hint">↓ Scroll</div>
 </div>
 
@@ -452,13 +448,13 @@
 <!-- ======== VISUAL DIVIDER ======== -->
 <div class="visual-divider">
   <svg viewBox="0 0 600 120" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <line x1="0" y1="60" x2="250" y2="60" stroke="#e7e8e8" stroke-width="1" stroke-dasharray="4 4"/>
+    <line x1="0" y1="60" x2="250" y2="60" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4 4"/>
     <circle cx="300" cy="60" r="24" stroke="url(#g1)" stroke-width="2" fill="none"/>
-    <text x="300" y="65" text-anchor="middle" fill="#D93C00" font-family="DM Sans" font-size="16" font-weight="600">⇆</text>
-    <line x1="350" y1="60" x2="600" y2="60" stroke="#e7e8e8" stroke-width="1" stroke-dasharray="4 4"/>
-    <text x="125" y="45" text-anchor="middle" fill="#999" font-family="DM Sans" font-size="11">Mensch</text>
-    <text x="475" y="45" text-anchor="middle" fill="#999" font-family="DM Sans" font-size="11">AI Agent</text>
-    <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#D93C00"/><stop offset="100%" stop-color="#2B333F"/></linearGradient></defs>
+    <text x="300" y="65" text-anchor="middle" fill="#0057ff" font-family="Inter" font-size="16" font-weight="600">⇆</text>
+    <line x1="350" y1="60" x2="600" y2="60" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4 4"/>
+    <text x="125" y="45" text-anchor="middle" fill="#999" font-family="Inter" font-size="11">Mensch</text>
+    <text x="475" y="45" text-anchor="middle" fill="#999" font-family="Inter" font-size="11">AI Agent</text>
+    <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0057ff"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs>
   </svg>
 </div>
 
@@ -706,8 +702,8 @@ GET /api/products?q=headphones&available=true
 
 <!-- ======== FOOTER ======== -->
 <footer>
-  <div style="display:flex;align-items:center;gap:.75rem;"><img src="https://www.mai-group.com/_assets/91371efa3afb5d4101de572cee05d1c9/Images/Logos/logo-mai-group.svg" alt="MAI Group"> AI Design Masterclass</div>
-  <div>MAI Group · Intermediate · 3h · Hands-on</div>
+  <div>AI Design Masterclass — Design for LLMs and Humans</div>
+  <div>Intermediate · 3h · Hands-on</div>
 </footer>
 
 </body>
