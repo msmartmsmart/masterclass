@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Design for LLMs and Humans — AI Design Masterclass</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg: #fafafa;
+    --fg: #111;
+    --muted: #666;
+    --accent: #0057ff;
+    --accent-soft: #e8efff;
+    --border: #e0e0e0;
+    --card-bg: #fff;
+    --gradient-1: #0057ff;
+    --gradient-2: #7c3aed;
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* --- Hero --- */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 4rem 2rem;
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .8rem;
+    font-weight: 500;
+    letter-spacing: .05em;
+    text-transform: uppercase;
+    color: var(--accent);
+    background: var(--accent-soft);
+    padding: .4rem 1rem;
+    border-radius: 100px;
+    width: fit-content;
+    margin-bottom: 2rem;
+  }
+
+  .hero h1 {
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -.03em;
+    margin-bottom: 1.5rem;
+  }
+
+  .hero h1 span {
+    background: linear-gradient(135deg, var(--gradient-1), var(--gradient-2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .hero-sub {
+    font-size: 1.25rem;
+    color: var(--muted);
+    max-width: 600px;
+    line-height: 1.7;
+    margin-bottom: 3rem;
+  }
+
+  .hero-meta {
+    display: flex;
+    gap: 2rem;
+    font-size: .9rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+  }
+
+  .hero-meta div { display: flex; align-items: center; gap: .4rem; }
+
+  .scroll-hint {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: .75rem;
+    color: var(--border);
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    animation: pulse 2s ease infinite;
+  }
+  @keyframes pulse { 0%,100% { opacity:.3; } 50% { opacity:1; } }
+
+  /* --- Sections --- */
+  section {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 6rem 2rem;
+  }
+
+  .section-label {
+    font-size: .75rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+
+  section h2 {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    letter-spacing: -.02em;
+    line-height: 1.15;
+    margin-bottom: 1.5rem;
+  }
+
+  section p.lead {
+    font-size: 1.1rem;
+    color: var(--muted);
+    max-width: 600px;
+    margin-bottom: 3rem;
+  }
+
+  /* --- Problem --- */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 640px) { .problem-grid { grid-template-columns: 1fr; } }
+
+  .problem-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gradient-1), var(--gradient-2));
+  }
+
+  .problem-card .icon { font-size: 1.5rem; margin-bottom: 1rem; }
+  .problem-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; }
+  .problem-card p { font-size: .9rem; color: var(--muted); }
+
+  /* --- Layers (the 5 levels) --- */
+  .layers {
+    counter-reset: layer;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .layer {
+    counter-increment: layer;
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 2rem;
+    padding: 3rem 0;
+    border-bottom: 1px solid var(--border);
+    align-items: start;
+  }
+
+  .layer:last-child { border-bottom: none; }
+
+  .layer-num {
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--border);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .layer-num::before { content: counter(layer, decimal-leading-zero); }
+
+  .layer h3 { font-size: 1.3rem; font-weight: 600; margin-bottom: .75rem; }
+  .layer p { color: var(--muted); font-size: .95rem; margin-bottom: 1rem; }
+
+  .layer-tags { display: flex; flex-wrap: wrap; gap: .5rem; }
+  .layer-tags span {
+    font-size: .75rem;
+    font-weight: 500;
+    background: var(--accent-soft);
+    color: var(--accent);
+    padding: .25rem .75rem;
+    border-radius: 100px;
+  }
+
+  @media (max-width: 640px) {
+    .layer { grid-template-columns: 1fr; gap: .5rem; }
+    .layer-num { font-size: 2rem; }
+  }
+
+  /* --- Hands-on --- */
+  .hands-on-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+    padding-left: 2rem;
+  }
+
+  .hands-on-flow::before {
+    content: '';
+    position: absolute;
+    left: 7px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+  }
+
+  .flow-step {
+    position: relative;
+    padding: 1.5rem 0;
+  }
+
+  .flow-step::before {
+    content: '';
+    position: absolute;
+    left: -2rem;
+    top: 1.75rem;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: 3px solid var(--bg);
+  }
+
+  .flow-step h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: .4rem; }
+  .flow-step p { font-size: .9rem; color: var(--muted); }
+  .flow-step .time {
+    font-size: .75rem;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: .25rem;
+  }
+
+  /* --- Takeaway --- */
+  .takeaway-box {
+    background: linear-gradient(135deg, #0057ff08, #7c3aed08);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 3rem;
+    margin-top: 2rem;
+  }
+
+  .takeaway-box ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+
+  .takeaway-box li {
+    font-size: 1rem;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .takeaway-box li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+    font-weight: 600;
+  }
+
+  /* --- Audience --- */
+  .audience-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+    margin-top: 2rem;
+  }
+
+  .audience-tags span {
+    font-size: .85rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    padding: .5rem 1.25rem;
+    border-radius: 100px;
+    background: var(--card-bg);
+  }
+
+  /* --- Footer --- */
+  footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 4rem 2rem;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: .8rem;
+    color: var(--muted);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  /* --- Code blocks --- */
+  .code-example {
+    background: #1a1a2e;
+    color: #e0e0e0;
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: .8rem;
+    line-height: 1.7;
+    overflow-x: auto;
+    margin-top: 1rem;
+  }
+
+  .code-example .tag { color: #7c3aed; }
+  .code-example .attr { color: #0ea5e9; }
+  .code-example .val { color: #22c55e; }
+  .code-example .comment { color: #555; }
+
+  /* --- Divider visual --- */
+  .visual-divider {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .visual-divider svg { width: 100%; max-width: 600px; height: 120px; }
+
+  /* --- Comparison --- */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    margin-top: 2rem;
+  }
+
+  @media (max-width: 640px) { .comparison { grid-template-columns: 1fr; } }
+
+  .comparison-col {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    background: var(--card-bg);
+  }
+
+  .comparison-col.bad { border-top: 3px solid #ef4444; }
+  .comparison-col.good { border-top: 3px solid #22c55e; }
+
+  .comparison-col h4 {
+    font-size: .8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 1rem;
+  }
+
+  .comparison-col.bad h4 { color: #ef4444; }
+  .comparison-col.good h4 { color: #22c55e; }
+
+  .comparison-col pre {
+    font-family: 'SF Mono', monospace;
+    font-size: .75rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+
+<!-- ======== HERO ======== -->
+<div class="hero">
+  <div class="hero-badge">Masterclass · Intermediate</div>
+  <h1>Design for <span>LLMs</span><br>and Humans</h1>
+  <p class="hero-sub">
+    Produkte, die nur für Menschen optimiert sind, versagen bei AI&#8209;Agents.
+    Lerne als UX Designer, was du konkret beeinflussen kannst — und was du im Handoff übergibst.
+  </p>
+  <div class="hero-meta">
+    <div>🕐 3 Stunden</div>
+    <div>🛠 Hands-on Workshop</div>
+    <div>🎯 Intermediate Level</div>
+  </div>
+  <a href="masterclass.html" style="display:inline-flex;align-items:center;gap:.5rem;margin-top:2rem;padding:.85rem 2rem;background:linear-gradient(135deg,#0057ff,#7c3aed);color:#fff;text-decoration:none;font-weight:600;font-size:1rem;border-radius:100px;width:fit-content;transition:filter .15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter='none'">→ Masterclass starten</a>
+  <div class="scroll-hint">↓ Scroll</div>
+</div>
+
+<!-- ======== PROVOCATION ======== -->
+<section>
+  <div class="section-label">Die Realität</div>
+  <h2>50 % deiner Nutzer sind bald keine Menschen mehr</h2>
+  <p class="lead">
+    AI-Agents buchen Flüge, füllen Formulare aus und vergleichen Produkte — 
+    im Auftrag echter Menschen. Wenn dein Interface sie ausbremst, verlierst du beide.
+  </p>
+  <div class="problem-grid">
+    <div class="problem-card">
+      <div class="icon">🚫</div>
+      <h3>Div-Suppe statt Semantik</h3>
+      <p>Ohne semantisches HTML hat ein Agent keine Ahnung, was ein Button ist — und klickt daneben.</p>
+    </div>
+    <div class="problem-card">
+      <div class="icon">🔍</div>
+      <h3>Unsichtbare Daten</h3>
+      <p>Preis, Verfügbarkeit, Bewertung — alles nur visuell codiert. Für Maschinen: unsichtbar.</p>
+    </div>
+    <div class="problem-card">
+      <div class="icon">🧩</div>
+      <h3>Fragile Formulare</h3>
+      <p>Dynamische Felder ohne Labels, Custom-Dropdowns ohne ARIA — ein Minenfeld für Agents.</p>
+    </div>
+    <div class="problem-card">
+      <div class="icon">🤖</div>
+      <h3>API? Welche API?</h3>
+      <p>Ohne strukturierte Schnittstelle muss der Agent scrapen. Das bricht. Immer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======== VISUAL DIVIDER ======== -->
+<div class="visual-divider">
+  <svg viewBox="0 0 600 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <line x1="0" y1="60" x2="250" y2="60" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4 4"/>
+    <circle cx="300" cy="60" r="24" stroke="url(#g1)" stroke-width="2" fill="none"/>
+    <text x="300" y="65" text-anchor="middle" fill="#0057ff" font-family="Inter" font-size="16" font-weight="600">⇆</text>
+    <line x1="350" y1="60" x2="600" y2="60" stroke="#e0e0e0" stroke-width="1" stroke-dasharray="4 4"/>
+    <text x="125" y="45" text-anchor="middle" fill="#999" font-family="Inter" font-size="11">Mensch</text>
+    <text x="475" y="45" text-anchor="middle" fill="#999" font-family="Inter" font-size="11">AI Agent</text>
+    <defs><linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0057ff"/><stop offset="100%" stop-color="#7c3aed"/></linearGradient></defs>
+  </svg>
+</div>
+
+<!-- ======== 5 LAYERS ======== -->
+<section>
+  <div class="section-label">Das Framework</div>
+  <h2>Fünf Ebenen agent-freundlichen Designs</h2>
+  <p class="lead">
+    Vom Fundament bis zur Oberfläche — jede Ebene macht dein Produkt robuster für Menschen und Maschinen.
+  </p>
+
+  <div class="layers">
+
+    <div class="layer">
+      <div class="layer-num"></div>
+      <div>
+        <h3>Semantisches HTML</h3>
+        <p>
+          Das Fundament. <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;button&gt;</code> statt endloser <code>&lt;div&gt;</code>-Ketten.
+          Agents (und Screenreader) verstehen die Seitenstruktur sofort — ohne Rätselraten.
+        </p>
+        <div class="comparison">
+          <div class="comparison-col bad">
+            <h4>❌ Vorher</h4>
+            <pre>&lt;div class="btn-primary" onclick="submit()"&gt;
+  Kaufen
+&lt;/div&gt;</pre>
+          </div>
+          <div class="comparison-col good">
+            <h4>✅ Nachher</h4>
+            <pre>&lt;button type="submit" aria-label="Produkt kaufen"&gt;
+  Kaufen
+&lt;/button&gt;</pre>
+          </div>
+        </div>
+        <br>
+        <div class="layer-tags">
+          <span>ARIA Roles</span>
+          <span>Landmarks</span>
+          <span>Heading Hierarchy</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-num"></div>
+      <div>
+        <h3>Structured Data</h3>
+        <p>
+          JSON-LD und Schema.org machen implizites Wissen explizit. Preis, Bewertung, Verfügbarkeit — 
+          maschinenlesbar im <code>&lt;head&gt;</code>, ohne die UI zu berühren.
+        </p>
+        <div class="code-example">
+<span class="comment">// Im &lt;head&gt; eingebettet:</span>
+{
+  <span class="attr">"@context"</span>: <span class="val">"https://schema.org"</span>,
+  <span class="attr">"@type"</span>: <span class="val">"Product"</span>,
+  <span class="attr">"name"</span>: <span class="val">"Wireless Headphones Pro"</span>,
+  <span class="attr">"offers"</span>: {
+    <span class="attr">"price"</span>: <span class="val">"149.00"</span>,
+    <span class="attr">"priceCurrency"</span>: <span class="val">"EUR"</span>,
+    <span class="attr">"availability"</span>: <span class="val">"InStock"</span>
+  }
+}
+        </div>
+        <br>
+        <div class="layer-tags">
+          <span>JSON-LD</span>
+          <span>Schema.org</span>
+          <span>Open Graph</span>
+          <span>Microdata</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-num"></div>
+      <div>
+        <h3>API-Design</h3>
+        <p>
+          Wenn ein Agent nicht scrapen muss, bricht nichts. Klare REST- oder GraphQL-Endpunkte 
+          mit konsistenter Benennung und guter Dokumentation sind die Brücke zwischen UI und Automation.
+        </p>
+        <div class="code-example">
+<span class="comment"># Statt fragiles Scraping:</span>
+GET /api/products?q=headphones&available=true
+
+<span class="comment"># Klare Antwort:</span>
+{
+  <span class="attr">"results"</span>: [...],
+  <span class="attr">"pagination"</span>: { <span class="attr">"next"</span>: <span class="val">"/api/products?page=2"</span> },
+  <span class="attr">"filters_applied"</span>: [<span class="val">"available"</span>]
+}
+        </div>
+        <br>
+        <div class="layer-tags">
+          <span>REST</span>
+          <span>GraphQL</span>
+          <span>OpenAPI Spec</span>
+          <span>Rate Limiting</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-num"></div>
+      <div>
+        <h3>Form-Struktur</h3>
+        <p>
+          Formulare sind der härteste Test. Explizite <code>&lt;label&gt;</code>-Zuordnungen, 
+          native Inputs, klare Fehlermeldungen und vorhersagbare Abläufe — 
+          das macht den Unterschied zwischen „Agent füllt aus" und „Agent gibt auf".
+        </p>
+        <div class="comparison">
+          <div class="comparison-col bad">
+            <h4>❌ Nightmare</h4>
+            <pre>&lt;div class="input-wrap"&gt;
+  &lt;span&gt;Email&lt;/span&gt;
+  &lt;div contenteditable="true"
+       class="fancy-input"&gt;&lt;/div&gt;
+&lt;/div&gt;</pre>
+          </div>
+          <div class="comparison-col good">
+            <h4>✅ Agent-friendly</h4>
+            <pre>&lt;label for="email"&gt;E-Mail&lt;/label&gt;
+&lt;input type="email" id="email"
+  name="email" required
+  autocomplete="email"
+  aria-describedby="email-err" /&gt;</pre>
+          </div>
+        </div>
+        <br>
+        <div class="layer-tags">
+          <span>Label/Input Binding</span>
+          <span>Autocomplete</span>
+          <span>Validation</span>
+          <span>Error States</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="layer">
+      <div class="layer-num"></div>
+      <div>
+        <h3>Content Readability</h3>
+        <p>
+          Die oberste Schicht: Klartext, der sowohl Menschen als auch Maschinen überzeugt. 
+          Konsistente Terminologie, logische Informationshierarchie, 
+          keine versteckten Bedeutungen in Farbe oder Icons allein.
+        </p>
+        <div class="layer-tags">
+          <span>Plain Language</span>
+          <span>Alt-Texte</span>
+          <span>Konsistente Terminologie</span>
+          <span>Progressive Disclosure</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======== HANDS-ON ======== -->
+<section>
+  <div class="section-label">Workshop-Ablauf</div>
+  <h2>Hands-on: Vom Audit zum Redesign</h2>
+  <p class="lead">
+    Kein Slide-Marathon. Wir arbeiten an echten Websites — und lassen einen AI-Agent die Arbeit bewerten.
+  </p>
+
+  <div class="hands-on-flow">
+
+    <div class="flow-step">
+      <div class="time">0:00 – 0:20</div>
+      <h3>Intro: Warum AI-Agents dein Design testen</h3>
+      <p>Live-Demo: Ein Agent versucht, ein Produkt auf einer echten Website zu kaufen. Wo er scheitert — und warum.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="time">0:20 – 0:50</div>
+      <h3>Deep Dive: Die fünf Ebenen</h3>
+      <p>Jede Ebene mit Before/After-Beispielen, Code-Snippets und dem „Warum" dahinter.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="time">0:50 – 1:00</div>
+      <h3>☕ Pause</h3>
+      <p></p>
+    </div>
+
+    <div class="flow-step">
+      <div class="time">1:00 – 1:45</div>
+      <h3>Hands-on Build: Semantik-Refactoring</h3>
+      <p>Teilnehmer refactoren eine vorbereitete „Div-Suppe" in semantisches, agent-freundliches HTML. Live-Coding im Browser.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="time">1:45 – 2:30</div>
+      <h3>Agent-Audit: Echte Aufgaben, echtes Scheitern</h3>
+      <p>Teams lassen einen AI-Agent drei Aufgaben auf einer realen Website durchführen: Produktsuche, Formular ausfüllen, Checkout. Ergebnisse dokumentieren.</p>
+    </div>
+
+    <div class="flow-step">
+      <div class="time">2:30 – 3:00</div>
+      <h3>Redesign-Sprint & Wrap-up</h3>
+      <p>Basierend auf den Audit-Ergebnissen: Quick-Fixes priorisieren, Redesign-Vorschläge pitchen, Key Takeaways sichern.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ======== TAKEAWAYS ======== -->
+<section>
+  <div class="section-label">Ergebnis</div>
+  <h2>Was du mitnimmst</h2>
+
+  <div class="takeaway-box">
+    <ul>
+      <li><strong>Ein Framework</strong> mit fünf Ebenen, das du auf jedes Projekt anwenden kannst</li>
+      <li><strong>Agent-Audit-Methode</strong> — nutze AI-Agents als schärfsten Usability-Tester</li>
+      <li><strong>Code-Templates</strong> für semantisches HTML, JSON-LD und form patterns</li>
+      <li><strong>Checkliste</strong> für agent-freundliches Design-Review</li>
+      <li><strong>Erkenntnis:</strong> Was für Agents funktioniert, funktioniert auch besser für Menschen mit Screenreadern, langsamen Verbindungen und kleinen Screens</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ======== AUDIENCE ======== -->
+<section>
+  <div class="section-label">Für wen</div>
+  <h2>Du bist hier richtig, wenn du …</h2>
+  <p class="lead">
+    HTML-Grundlagen beherrschst und verstehen willst, wie AI-Agents mit Interfaces interagieren — 
+    und wie du dieses Wissen in besseres Design übersetzt.
+  </p>
+  <div class="audience-tags">
+    <span>UX Designer</span>
+    <span>UI Developer</span>
+    <span>Product Designer</span>
+    <span>Frontend Engineer</span>
+    <span>Design System Lead</span>
+    <span>Accessibility Specialist</span>
+  </div>
+</section>
+
+<!-- ======== FOOTER ======== -->
+<footer>
+  <div>AI Design Masterclass — Design for LLMs and Humans</div>
+  <div>Intermediate · 3h · Hands-on</div>
+</footer>
+
+</body>
+</html>

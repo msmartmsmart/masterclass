@@ -1,0 +1,1250 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masterclass — Design for LLMs and Humans</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #fafafa;
+    --fg: #111;
+    --muted: #666;
+    --subtle: #999;
+    --accent: #0057ff;
+    --accent-soft: #e8efff;
+    --accent-dark: #0044cc;
+    --purple: #7c3aed;
+    --green: #22c55e;
+    --red: #ef4444;
+    --orange: #f59e0b;
+    --border: #e0e0e0;
+    --card-bg: #fff;
+    --code-bg: #1a1a2e;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --sans: 'Inter', -apple-system, sans-serif;
+    --ux-pink: #ec4899;
+    --ux-pink-soft: #fdf2f8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== TOP NAV ===== */
+  .topnav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: rgba(250,250,250,.92); backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; height: 56px; padding: 0 2rem; gap: 1.5rem;
+  }
+  .topnav-brand { font-weight: 700; font-size: .9rem; white-space: nowrap; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .topnav-progress { flex: 1; height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .topnav-progress-bar { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--purple)); border-radius: 2px; transition: width .4s ease; }
+  .topnav-chapter { font-size: .8rem; color: var(--muted); white-space: nowrap; }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    position: fixed; top: 56px; left: 0; bottom: 0; width: 280px;
+    background: var(--card-bg); border-right: 1px solid var(--border);
+    overflow-y: auto; padding: 1.5rem 0; z-index: 90; transition: transform .3s ease;
+  }
+  .sidebar-toggle {
+    display: none; position: fixed; top: 68px; left: 12px; z-index: 95;
+    width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border);
+    background: var(--card-bg); cursor: pointer; font-size: 1.1rem; align-items: center; justify-content: center;
+  }
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,.1); }
+    .sidebar-toggle { display: flex; }
+    .main { margin-left: 0 !important; }
+  }
+  .sidebar-section { padding: .5rem 1.5rem; margin-top: 1rem; }
+  .sidebar-section:first-child { margin-top: 0; }
+  .sidebar-section-label { font-size: .65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .1em; color: var(--subtle); margin-bottom: .5rem; }
+  .sidebar-link {
+    display: flex; align-items: center; gap: .6rem; padding: .5rem .75rem; margin: 2px 0;
+    border-radius: var(--radius-sm); font-size: .85rem; color: var(--muted); text-decoration: none; cursor: pointer; transition: all .15s ease;
+  }
+  .sidebar-link:hover { background: var(--accent-soft); color: var(--fg); }
+  .sidebar-link.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .sidebar-link .num { font-family: var(--mono); font-size: .7rem; color: var(--subtle); min-width: 20px; }
+  .sidebar-link.active .num { color: var(--accent); }
+  .sidebar-link .check { margin-left: auto; font-size: .75rem; opacity: 0; }
+  .sidebar-link.done .check { opacity: 1; }
+
+  /* ===== MAIN ===== */
+  .main { margin-left: 280px; margin-top: 56px; min-height: calc(100vh - 56px); }
+
+  /* ===== CHAPTERS ===== */
+  .chapter { display: none; max-width: 800px; margin: 0 auto; padding: 4rem 2rem 6rem; animation: fadeIn .4s ease; }
+  .chapter.active { display: block; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  .chapter-label { font-size: .7rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: .75rem; }
+  .chapter h1 { font-size: clamp(2rem, 4vw, 3rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.1; margin-bottom: 1.5rem; }
+  .chapter h1 em { font-style: normal; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .chapter h2 { font-size: 1.5rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1rem; }
+  .chapter h3 { font-size: 1.15rem; font-weight: 600; margin-top: 2rem; margin-bottom: .75rem; }
+  .chapter p { font-size: 1.05rem; color: var(--muted); margin-bottom: 1.25rem; max-width: 640px; }
+  .chapter p strong { color: var(--fg); }
+  .chapter ul, .chapter ol { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+  .chapter li { font-size: 1rem; color: var(--muted); margin-bottom: .5rem; }
+  .chapter li strong { color: var(--fg); }
+
+  /* ===== CALLOUT ===== */
+  .callout { border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; padding: 1.25rem 1.5rem; margin: 1.5rem 0; }
+  .callout.warn { border-color: var(--orange); background: #fef9e7; }
+  .callout.success { border-color: var(--green); background: #f0fdf4; }
+  .callout.ux { border-color: var(--ux-pink); background: var(--ux-pink-soft); }
+  .callout p { margin: 0; font-size: .95rem; color: var(--fg); }
+
+  /* ===== CODE ===== */
+  .code-block { background: var(--code-bg); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; overflow-x: auto; position: relative; }
+  .code-block code { font-family: var(--mono); font-size: .82rem; line-height: 1.8; color: #e0e0e0; white-space: pre; }
+  .code-block .label { position: absolute; top: .75rem; right: .75rem; font-size: .6rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: #555; background: rgba(255,255,255,.06); padding: .2rem .6rem; border-radius: 4px; }
+  .tag { color: #c084fc; } .attr { color: #60a5fa; } .val { color: #86efac; } .cmt { color: #555; } .kw { color: #f472b6; }
+
+  /* ===== COMPARISON ===== */
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+  @media (max-width: 640px) { .comparison { grid-template-columns: 1fr; } }
+  .comp-col { border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--card-bg); }
+  .comp-col-header { padding: .6rem 1rem; font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .comp-col.bad .comp-col-header { background: #fef2f2; color: var(--red); }
+  .comp-col.good .comp-col-header { background: #f0fdf4; color: var(--green); }
+  .comp-col pre { padding: 1rem; font-family: var(--mono); font-size: .78rem; line-height: 1.7; white-space: pre-wrap; color: var(--muted); }
+
+  /* ===== EDITOR ===== */
+  .editor-wrap { margin: 2rem 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--card-bg); }
+  .editor-toolbar { display: flex; align-items: center; padding: .5rem 1rem; background: #f5f5f5; border-bottom: 1px solid var(--border); gap: .75rem; flex-wrap: wrap; }
+  .editor-toolbar span { font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; }
+  .editor-toolbar button { margin-left: auto; font-size: .8rem; font-weight: 600; padding: .4rem 1rem; border-radius: 6px; border: none; cursor: pointer; background: var(--accent); color: #fff; transition: background .15s; font-family: var(--sans); }
+  .editor-toolbar button:hover { background: var(--accent-dark); }
+  .editor-toolbar .btn-reset { background: transparent; color: var(--muted); border: 1px solid var(--border); margin-left: 0; }
+  .editor-toolbar .btn-reset:hover { background: #eee; }
+  .editor-area { display: grid; grid-template-columns: 1fr 1fr; min-height: 280px; }
+  @media (max-width: 700px) { .editor-area { grid-template-columns: 1fr; } }
+  .editor-area textarea { font-family: var(--mono); font-size: .8rem; line-height: 1.7; padding: 1rem; border: none; resize: none; outline: none; background: var(--code-bg); color: #e0e0e0; min-height: 280px; }
+  .editor-area .preview { border-left: 1px solid var(--border); padding: 1rem; overflow: auto; background: #fff; min-height: 280px; }
+  .editor-area .preview iframe { width: 100%; height: 100%; border: none; min-height: 260px; }
+
+  /* ===== QUIZ ===== */
+  .quiz { border: 1px solid var(--border); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; background: var(--card-bg); }
+  .quiz-q { font-size: 1.05rem; font-weight: 600; margin-bottom: 1.25rem; }
+  .quiz-options { display: flex; flex-direction: column; gap: .5rem; }
+  .quiz-opt { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; font-size: .95rem; transition: all .15s; }
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt .marker { width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 600; flex-shrink: 0; }
+  .quiz-opt.correct .marker { border-color: var(--green); background: var(--green); color: #fff; }
+  .quiz-opt.wrong .marker { border-color: var(--red); background: var(--red); color: #fff; }
+  .quiz-explain { margin-top: 1rem; padding: 1rem; border-radius: var(--radius-sm); font-size: .9rem; display: none; }
+  .quiz-explain.show { display: block; }
+  .quiz-explain.right { background: #f0fdf4; color: #166534; }
+  .quiz-explain.wrong-expl { background: #fef2f2; color: #991b1b; }
+
+  /* ===== CHECKLIST ===== */
+  .checklist { margin: 1.5rem 0; display: flex; flex-direction: column; gap: .5rem; }
+  .checklist-item { display: flex; align-items: center; gap: .75rem; padding: .75rem 1rem; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--card-bg); cursor: pointer; transition: all .15s; font-size: .95rem; }
+  .checklist-item:hover { border-color: var(--accent); }
+  .checklist-item input[type=checkbox] { width: 18px; height: 18px; accent-color: var(--accent); cursor: pointer; }
+  .checklist-item.checked { background: #f0fdf4; border-color: var(--green); text-decoration: line-through; color: var(--muted); }
+
+  /* ===== INFLUENCE MAP ===== */
+  .influence-map { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 2rem 0; }
+  @media (max-width: 640px) { .influence-map { grid-template-columns: 1fr; } }
+  .inf-card { border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; background: var(--card-bg); position: relative; overflow: hidden; }
+  .inf-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .inf-card.high::before { background: var(--green); }
+  .inf-card.med::before { background: var(--orange); }
+  .inf-card.low::before { background: var(--red); }
+  .inf-card .inf-badge { display: inline-block; font-size: .65rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; padding: .2rem .6rem; border-radius: 100px; margin-bottom: .75rem; }
+  .inf-card.high .inf-badge { background: #f0fdf4; color: var(--green); }
+  .inf-card.med .inf-badge { background: #fef9e7; color: var(--orange); }
+  .inf-card.low .inf-badge { background: #fef2f2; color: var(--red); }
+  .inf-card h4 { font-size: 1rem; font-weight: 600; margin-bottom: .5rem; }
+  .inf-card p { font-size: .85rem; color: var(--muted); margin: 0; }
+
+  /* ===== ROLE TAG ===== */
+  .role-tag { display: inline-flex; align-items: center; gap: .35rem; font-size: .7rem; font-weight: 600; padding: .2rem .6rem; border-radius: 100px; }
+  .role-tag.ux { background: var(--ux-pink-soft); color: var(--ux-pink); }
+  .role-tag.dev { background: #ede9fe; color: var(--purple); }
+  .role-tag.both { background: var(--accent-soft); color: var(--accent); }
+
+  /* ===== HANDOFF ===== */
+  .handoff { border: 1px solid var(--border); border-radius: var(--radius); margin: 1.5rem 0; overflow: hidden; }
+  .handoff-header { display: flex; align-items: center; gap: .75rem; padding: 1rem 1.25rem; background: #f5f5f5; border-bottom: 1px solid var(--border); }
+  .handoff-header .arrow { font-size: 1.2rem; }
+  .handoff-cols { display: grid; grid-template-columns: 1fr 1fr; }
+  @media (max-width: 640px) { .handoff-cols { grid-template-columns: 1fr; } }
+  .handoff-col { padding: 1.25rem; }
+  .handoff-col:first-child { border-right: 1px solid var(--border); }
+  @media (max-width: 640px) { .handoff-col:first-child { border-right: none; border-bottom: 1px solid var(--border); } }
+  .handoff-col h4 { font-size: .8rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; margin-bottom: .75rem; display: flex; align-items: center; gap: .5rem; }
+  .handoff-col ul { list-style: none; padding: 0; }
+  .handoff-col li { font-size: .9rem; color: var(--muted); padding: .3rem 0; padding-left: 1.2rem; position: relative; }
+  .handoff-col li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+
+  /* ===== SCORE CARD ===== */
+  .score-card { display: grid; grid-template-columns: repeat(5, 1fr); gap: .75rem; margin: 2rem 0; }
+  @media (max-width: 640px) { .score-card { grid-template-columns: repeat(2, 1fr); } }
+  .score-item { text-align: center; padding: 1.25rem .75rem; border: 1px solid var(--border); border-radius: var(--radius); background: var(--card-bg); }
+  .score-item .score-icon { font-size: 1.5rem; margin-bottom: .5rem; }
+  .score-item .score-label { font-size: .75rem; color: var(--muted); font-weight: 500; }
+  .score-item select { font-family: var(--mono); font-size: 1.2rem; font-weight: 700; border: none; background: transparent; text-align: center; cursor: pointer; width: 60px; color: var(--fg); outline: none; }
+
+  /* ===== AUDIT TASK ===== */
+  .audit-task { border: 2px solid var(--accent); border-radius: var(--radius); padding: 2rem; margin: 2rem 0; background: linear-gradient(135deg, var(--accent-soft), #f5f0ff); }
+  .audit-task h3 { color: var(--accent); margin-top: 0; }
+  .audit-task .steps { counter-reset: auditstep; list-style: none; padding: 0; }
+  .audit-task .steps li { counter-increment: auditstep; padding: .5rem 0 .5rem 2.5rem; position: relative; font-size: .95rem; }
+  .audit-task .steps li::before { content: counter(auditstep); position: absolute; left: 0; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: #fff; font-size: .75rem; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+
+  /* ===== AGENT LOG ===== */
+  .agent-log { background: var(--code-bg); border-radius: var(--radius); padding: 1.5rem; margin: 1.5rem 0; font-family: var(--mono); font-size: .8rem; line-height: 1.8; color: #888; max-height: 320px; overflow-y: auto; }
+  .agent-log .step { margin-bottom: .25rem; }
+  .agent-log .ok { color: var(--green); }
+  .agent-log .fail { color: var(--red); }
+  .agent-log .info { color: var(--accent); }
+  .agent-log .warn { color: var(--orange); }
+
+  /* ===== REVEAL ===== */
+  .reveal-trigger { display: inline-flex; align-items: center; gap: .4rem; font-size: .85rem; font-weight: 600; color: var(--accent); cursor: pointer; border: none; background: none; padding: .5rem 0; font-family: var(--sans); }
+  .reveal-trigger:hover { text-decoration: underline; }
+  .reveal-content { max-height: 0; overflow: hidden; transition: max-height .4s ease; }
+  .reveal-content.open { max-height: 3000px; }
+
+  /* ===== CHAPTER NAV ===== */
+  .chapter-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border); gap: 1rem; }
+  .chapter-nav button { display: flex; align-items: center; gap: .5rem; padding: .75rem 1.5rem; font-size: .9rem; font-weight: 600; border-radius: var(--radius-sm); border: 1px solid var(--border); background: var(--card-bg); cursor: pointer; transition: all .15s; color: var(--fg); font-family: var(--sans); }
+  .chapter-nav button:hover { border-color: var(--accent); color: var(--accent); }
+  .chapter-nav button.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .chapter-nav button.primary:hover { background: var(--accent-dark); }
+  .chapter-nav button:disabled { opacity: .3; cursor: default; }
+
+  /* ===== SCENARIO ===== */
+  .scenario { border: 1px solid var(--border); border-radius: var(--radius); margin: 2rem 0; overflow: hidden; background: var(--card-bg); }
+  .scenario-header { padding: 1rem 1.5rem; background: #f9fafb; border-bottom: 1px solid var(--border); font-size: .9rem; font-weight: 600; display: flex; align-items: center; gap: .5rem; }
+  .scenario-body { padding: 1.5rem; }
+  .scenario-body p { font-size: .95rem; }
+
+  .spacer { height: 2rem; }
+</style>
+</head>
+<body>
+
+<nav class="topnav">
+  <div class="topnav-brand">LLMs × Humans</div>
+  <div class="topnav-progress"><div class="topnav-progress-bar" id="progressBar"></div></div>
+  <div class="topnav-chapter" id="chapterLabel">Intro</div>
+</nav>
+
+<button class="sidebar-toggle" id="sidebarToggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Einführung</div>
+    <a class="sidebar-link active" data-chapter="0"><span class="num">00</span> Willkommen <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="1"><span class="num">01</span> Neue Nutzer, neue Regeln <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="2"><span class="num">02</span> Was UX Designer bewegen <span class="check">✓</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Die 5 Ebenen</div>
+    <a class="sidebar-link" data-chapter="3"><span class="num">03</span> Semantische Struktur <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="4"><span class="num">04</span> Maschinenlesbare Daten <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="5"><span class="num">05</span> API als Design-Material <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="6"><span class="num">06</span> Formulare & Flows <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="7"><span class="num">07</span> Content & Klarheit <span class="check">✓</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Hands-on</div>
+    <a class="sidebar-link" data-chapter="8"><span class="num">08</span> Übung: UX Audit <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="9"><span class="num">09</span> Agent-Walkthrough <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="10"><span class="num">10</span> Scorecard <span class="check">✓</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Abschluss</div>
+    <a class="sidebar-link" data-chapter="11"><span class="num">11</span> Checkliste & Handoff <span class="check">✓</span></a>
+  </div>
+</aside>
+
+<div class="main">
+
+<!-- ======================================================= -->
+<!-- CHAPTER 0: WILLKOMMEN -->
+<!-- ======================================================= -->
+<div class="chapter active" data-index="0">
+  <div class="chapter-label">Kapitel 00 · Willkommen</div>
+  <h1>Design for <em>LLMs</em> and Humans</h1>
+  <p>Willkommen. Diese Masterclass ist <strong>für UX Designer</strong> — nicht für Entwickler, die schon wissen, was ARIA ist. Sondern für dich, die Person, die entscheidet, <em>wie</em> ein Produkt funktioniert.</p>
+
+  <div class="callout ux">
+    <p>🎯 <strong>Fokus dieser Masterclass:</strong> Was kannst du als UX Designer konkret beeinflussen, damit AI-Agents dein Interface verstehen — und wo brauchst du Entwickler?</p>
+  </div>
+
+  <h2>Warum das jetzt wichtig ist</h2>
+  <p>AI-Agents werden gerade zu einer neuen Nutzergruppe. Sie buchen Flüge, vergleichen Produkte, füllen Formulare aus — <strong>im Auftrag echter Menschen</strong>. Dein Design entscheidet, ob sie das können.</p>
+
+  <p>Das Gute: Die meisten Prinzipien, die Agents helfen, kennst du schon. Sie heißen nur anders: <strong>Accessibility, Information Architecture, Content Design.</strong></p>
+
+  <h2>Was dich erwartet</h2>
+  <ul>
+    <li><strong>Dein Einflussbereich</strong> — wo du als Designer direkt wirkst und wo du den Handoff gestaltest</li>
+    <li><strong>5 Ebenen</strong> agent-freundlichen Designs, jeweils mit UX-Perspektive</li>
+    <li><strong>Hands-on Audit</strong> — echte Websites durch die Augen eines AI-Agents bewerten</li>
+    <li><strong>Checkliste & Handoff-Templates</strong> für deinen Alltag</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button disabled>← Zurück</button>
+    <button class="primary" onclick="next()">Los geht's →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 1: NEUE NUTZER -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="1">
+  <div class="chapter-label">Kapitel 01 · Die neue Realität</div>
+  <h1>Neue Nutzer, <em>neue Regeln</em></h1>
+
+  <p>Du designst Interfaces für Menschen. Ab jetzt designst du auch für deren Assistenten.</p>
+
+  <div class="scenario">
+    <div class="scenario-header">💬 Szenario: Sonntagabend, 2025</div>
+    <div class="scenario-body">
+      <p><strong>Lisa, 34, Produktmanagerin.</strong> Sie sagt zu ihrem AI-Assistenten:</p>
+      <p style="font-style:italic; color:var(--fg); font-size:1.1rem; margin: 1rem 0;">„Such mir kabellose Kopfhörer unter 200€, mindestens 4 Sterne, die bis Mittwoch ankommen. Bestell die besten."</p>
+      <p>Der Agent öffnet drei Shops. Auf Shop A findet er Preise, Bewertungen, Lieferzeiten — alles strukturiert. Auf Shop B: Preise als Bild, Filter als Custom-Slider, „In den Warenkorb" ist ein Div. <strong>Shop B verliert den Kunden. Nicht wegen schlechter Produkte — wegen schlechtem HTML.</strong></p>
+    </div>
+  </div>
+
+  <h2>Der Agent sieht deine Seite anders</h2>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">👁 Was der Mensch sieht</div>
+      <pre>Schönes Layout
+Große Produktbilder
+Roter „Sale"-Badge
+Grüner Text = „Auf Lager"
+Intuitiver Slider für Preisfilter
+Smooth Animations</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">🤖 Was der Agent sieht</div>
+      <pre>DOM-Baum aus Nodes
+Texte, Attribute, Rollen
+Keine Farbe, kein Layout
+Kein „Gefühl" für Hierarchie
+Sucht: button, input, label, nav
+Braucht: Struktur, nicht Ästhetik</pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>💡 <strong>Die Brücke:</strong> Gutes UX Design für Agents = gutes UX Design für Screenreader = gutes UX Design für alle. Die Werkzeuge existieren schon — wir müssen sie nur konsequent einsetzen.</p>
+  </div>
+
+  <h2>Schnell-Check</h2>
+  <div class="quiz" id="quiz1">
+    <div class="quiz-q">Ein AI-Agent soll auf deiner Produktseite den Preis auslesen. Was funktioniert am zuverlässigsten?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-correct="false" onclick="checkQuiz(this,'quiz1')"><div class="marker">A</div><div>Großer, fetter Text in roter Schrift</div></div>
+      <div class="quiz-opt" data-correct="false" onclick="checkQuiz(this,'quiz1')"><div class="marker">B</div><div>Preis als SVG-Grafik mit Alt-Text</div></div>
+      <div class="quiz-opt" data-correct="true" onclick="checkQuiz(this,'quiz1')"><div class="marker">C</div><div>JSON-LD mit schema:price + sichtbarer Text</div></div>
+      <div class="quiz-opt" data-correct="false" onclick="checkQuiz(this,'quiz1')"><div class="marker">D</div><div>Tooltip, der beim Hover den Preis zeigt</div></div>
+    </div>
+    <div class="quiz-explain right" id="quiz1-right">✅ Richtig. Strukturierte Daten (JSON-LD) sind die zuverlässigste Quelle — maschinenlesbar, standardisiert, layout-unabhängig.</div>
+    <div class="quiz-explain wrong-expl" id="quiz1-wrong">❌ Nicht ganz. Variante C (JSON-LD) ist am robustesten. Alles, was von visuellem Rendering abhängt (Farbe, Bilder, Hover), ist für Agents unzuverlässig.</div>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Dein Einflussbereich →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 2: EINFLUSSBEREICH -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="2">
+  <div class="chapter-label">Kapitel 02 · Dein Einflussbereich</div>
+  <h1>Was UX Designer <em>bewegen</em> können</h1>
+
+  <p>Nicht alles in agent-freundlichem Design ist Code. Vieles entscheidest <strong>du</strong> — in Wireframes, Specs, und Design-Entscheidungen. Manches übergibst du. Wichtig ist, dass du weißt, was wo passiert.</p>
+
+  <h2>Die Influence Map</h2>
+  <div class="influence-map">
+    <div class="inf-card high">
+      <div class="inf-badge">Hoher Einfluss</div>
+      <h4>Informationsarchitektur</h4>
+      <p>Du definierst die Seitenstruktur, Heading-Hierarchie, Navigation. Das ist das Skelett, das Agents lesen.</p>
+    </div>
+    <div class="inf-card high">
+      <div class="inf-badge">Hoher Einfluss</div>
+      <h4>Content-Strategie</h4>
+      <p>Konsistente Terminologie, beschreibende Labels, klare Fehlermeldungen — alles UX-Entscheidungen.</p>
+    </div>
+    <div class="inf-card high">
+      <div class="inf-badge">Hoher Einfluss</div>
+      <h4>Formular-Design</h4>
+      <p>Feld-Reihenfolge, Label-Texte, Gruppierung, Pflichtfelder, Fehler-UX — du designst den Flow, Devs bauen ihn.</p>
+    </div>
+    <div class="inf-card high">
+      <div class="inf-badge">Hoher Einfluss</div>
+      <h4>Komponentenwahl</h4>
+      <p>Native Select vs. Custom Dropdown. Native Date vs. Fancy Picker. Du entscheidest, was im Design System landet.</p>
+    </div>
+    <div class="inf-card med">
+      <div class="inf-badge">Mittlerer Einfluss</div>
+      <h4>Semantisches HTML</h4>
+      <p>Du spezifizierst: „Das ist ein Button, kein gestylter Link." Im Handoff definierst du die semantische Absicht.</p>
+    </div>
+    <div class="inf-card med">
+      <div class="inf-badge">Mittlerer Einfluss</div>
+      <h4>Structured Data</h4>
+      <p>Du entscheidest, welche Daten auf einer Seite leben (Preis, Rating, Verfügbarkeit). Die JSON-LD-Implementation ist Dev-Arbeit.</p>
+    </div>
+    <div class="inf-card low">
+      <div class="inf-badge">Indirekter Einfluss</div>
+      <h4>API-Architektur</h4>
+      <p>Du kannst fordern, dass jeder UI-Flow auch als API existiert. Die technische Umsetzung liegt beim Dev-Team.</p>
+    </div>
+    <div class="inf-card low">
+      <div class="inf-badge">Indirekter Einfluss</div>
+      <h4>ARIA-Implementation</h4>
+      <p>Du gibst die Intention vor („dieses Element hat Zustand X"). Devs setzen aria-expanded, aria-live etc. um.</p>
+    </div>
+  </div>
+
+  <div class="callout ux">
+    <p>🎯 <strong>Kernerkenntnis:</strong> UX Designer kontrollieren die <em>Intention</em> und <em>Struktur</em>. Entwickler kontrollieren die <em>Implementation</em>. Agent-freundliches Design braucht beides — und den richtigen Handoff dazwischen.</p>
+  </div>
+
+  <h2>Der UX-Hebel: Design-Entscheidungen mit doppeltem Impact</h2>
+  <ul>
+    <li><strong>„Verwende native form elements"</strong> → ein Satz in deiner Spec, riesiger Impact für Agents + Accessibility</li>
+    <li><strong>„Jede Information auch als Text"</strong> → keine rein visuellen Indikatoren (Farbe, Icons ohne Label)</li>
+    <li><strong>„Konsistente Benennung"</strong> → „Warenkorb" ist überall „Warenkorb", nie „Basket" oder „Cart"</li>
+    <li><strong>„Beschreibende Button-Labels"</strong> → „Kopfhörer in den Warenkorb" statt nur „Hinzufügen"</li>
+    <li><strong>„Logische Heading-Struktur"</strong> → H1 → H2 → H3, keine Sprünge</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Semantische Struktur →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 3: SEMANTISCHES HTML -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="3">
+  <div class="chapter-label">Ebene 01 · Semantische Struktur</div>
+  <h1>Struktur, die <em>Maschinen</em> lesen</h1>
+
+  <p>Du musst kein HTML schreiben. Aber du musst verstehen, was semantische Struktur bedeutet — weil du sie in deinen Designs definierst.</p>
+
+  <div class="callout ux">
+    <p>🎨 <strong>UX-Perspektive:</strong> Jedes Mal, wenn du in Figma ein Element platzierst, triffst du eine semantische Entscheidung. Ist das ein Button oder ein Link? Eine Navigation oder eine Liste? Ein Heading oder fetter Text?</p>
+  </div>
+
+  <h2>Was du als Designer entscheidest</h2>
+
+  <div class="handoff">
+    <div class="handoff-header"><span class="arrow">↔</span> UX → Dev Handoff: Semantik</div>
+    <div class="handoff-cols">
+      <div class="handoff-col">
+        <h4><span class="role-tag ux">UX</span> Du definierst</h4>
+        <ul>
+          <li>Seitenstruktur: Header, Hauptbereich, Footer, Sidebar</li>
+          <li>Heading-Hierarchie: Was ist H1, H2, H3?</li>
+          <li>Element-Typ: Button vs. Link vs. Text</li>
+          <li>Navigation: Haupt-Nav, Breadcrumb, Seiten-Nav</li>
+          <li>Interaktive Elemente: Was öffnet was?</li>
+        </ul>
+      </div>
+      <div class="handoff-col">
+        <h4><span class="role-tag dev">DEV</span> Team implementiert</h4>
+        <ul>
+          <li><code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;footer&gt;</code>, <code>&lt;aside&gt;</code></li>
+          <li><code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code> in korrekter Reihenfolge</li>
+          <li><code>&lt;button&gt;</code> vs. <code>&lt;a&gt;</code> vs. <code>&lt;span&gt;</code></li>
+          <li><code>&lt;nav&gt;</code> mit <code>aria-label</code></li>
+          <li>ARIA-States (<code>aria-expanded</code> etc.)</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Heading-Hierarchie: Dein mächtigstes Werkzeug</h2>
+  <p>Die Heading-Struktur ist wie ein Inhaltsverzeichnis. Agents (und Screenreader) nutzen sie, um den Seiteninhalt zu verstehen:</p>
+
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Im Wireframe oft gesehen</div>
+      <pre>GROSSER TEXT ← „Sieht aus wie H1"
+  Mittelgroßer Text ← ist aber H3
+    Kleiner Text ← ist eigentlich H2
+
+→ Font-Size ≠ Heading-Level
+→ Visuell okay, semantisch kaputt</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ So annotierst du im Design</div>
+      <pre>H1: Studio Monitor Kopfhörer
+  H2: Produktdetails
+    H3: Technische Daten
+    H3: Lieferumfang
+  H2: Kundenbewertungen
+  H2: Ähnliche Produkte
+
+→ Logische Hierarchie
+→ Visual Styling unabhängig</pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>💡 <strong>Praxis-Tipp:</strong> Annotiere in deinen Designs die Heading-Level explizit. In Figma: eine Ebene „Semantik" mit H1/H2/H3-Labels neben den Textelementen. Spart dem Dev-Team Rätselraten.</p>
+  </div>
+
+  <h2>Button vs. Link — Die ewige Frage</h2>
+  <p>Klingt trivial, hat massive Auswirkungen:</p>
+  <ul>
+    <li><strong>Link (<code>&lt;a&gt;</code>):</strong> Navigiert zu einer neuen Seite/URL. Agent erkennt: „Das führt mich woandershin."</li>
+    <li><strong>Button (<code>&lt;button&gt;</code>):</strong> Löst eine Aktion aus (hinzufügen, löschen, öffnen). Agent erkennt: „Das tut etwas."</li>
+    <li><strong>Div mit onclick:</strong> Agent erkennt: nichts. Klickt daneben. Frustration.</li>
+  </ul>
+
+  <div class="callout ux">
+    <p>🎨 <strong>Design-Regel:</strong> Jedes interaktive Element in deinem Design sollte ein annotiertes Verhalten haben: „Navigiert zu X" (= Link) oder „Führt Aktion Y aus" (= Button). Nie: „Sieht klickbar aus."</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Maschinenlesbare Daten →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 4: STRUCTURED DATA -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="4">
+  <div class="chapter-label">Ebene 02 · Maschinenlesbare Daten</div>
+  <h1>Mach das <em>Unsichtbare</em> sichtbar</h1>
+
+  <p>Du designst eine Produktseite: Preis, Bewertung, Verfügbarkeit, Marke — alles visuell klar angeordnet. Aber für einen Agent? Unsichtbar, wenn es nur Pixel sind.</p>
+
+  <div class="callout ux">
+    <p>🎨 <strong>UX-Perspektive:</strong> Du entscheidest, welche Datenpunkte auf einer Seite existieren. Diese Liste ist gleichzeitig die Spec für Structured Data. Dein Content-Inventar = das Schema.</p>
+  </div>
+
+  <h2>Dein Job: Das Content-Inventar</h2>
+  <p>Für jede Seitenart definierst du die Kerndaten. Beispiel Produktseite:</p>
+
+  <div class="handoff">
+    <div class="handoff-header"><span class="arrow">↔</span> UX → Dev Handoff: Daten</div>
+    <div class="handoff-cols">
+      <div class="handoff-col">
+        <h4><span class="role-tag ux">UX</span> Du definierst die Datenpunkte</h4>
+        <ul>
+          <li>Produktname</li>
+          <li>Preis (aktuell + ggf. reduziert)</li>
+          <li>Währung</li>
+          <li>Verfügbarkeit</li>
+          <li>Durchschnittsbewertung + Anzahl</li>
+          <li>Marke</li>
+          <li>Produktbild mit Beschreibung</li>
+        </ul>
+      </div>
+      <div class="handoff-col">
+        <h4><span class="role-tag dev">DEV</span> Team implementiert als JSON-LD</h4>
+        <ul>
+          <li><code>schema:name</code></li>
+          <li><code>schema:price</code> + <code>schema:discount</code></li>
+          <li><code>schema:priceCurrency</code></li>
+          <li><code>schema:availability</code></li>
+          <li><code>schema:aggregateRating</code></li>
+          <li><code>schema:brand</code></li>
+          <li><code>schema:image</code></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <h2>Welche Seiten brauchen Structured Data?</h2>
+  <ul>
+    <li><strong>Produktseiten</strong> → Product-Schema (Preis, Rating, Stock)</li>
+    <li><strong>Suchergebnisse</strong> → ItemList-Schema (sortierte Ergebnisse)</li>
+    <li><strong>FAQ-Seiten</strong> → FAQPage-Schema (Frage-Antwort-Paare)</li>
+    <li><strong>Events</strong> → Event-Schema (Datum, Ort, Tickets)</li>
+    <li><strong>Unternehmensprofil</strong> → LocalBusiness (Adresse, Öffnungszeiten)</li>
+    <li><strong>Artikel/Blog</strong> → Article (Autor, Datum, Kategorie)</li>
+    <li><strong>Breadcrumbs</strong> → BreadcrumbList (Seitenstruktur)</li>
+  </ul>
+
+  <div class="callout">
+    <p>💡 <strong>Praxis-Tipp:</strong> Erstelle für jede Seitenart ein Content-Modell: „Welche Daten leben hier?" Das ist gleichzeitig dein Design-Dokument <em>und</em> die Structured-Data-Spec für das Dev-Team.</p>
+  </div>
+
+  <h2>Was Agents mit den Daten tun</h2>
+  <div class="agent-log">
+    <div class="step info">→ Agent: „Finde Kopfhörer unter 200€ mit 4+ Sternen"</div>
+    <div class="step ok">✓ JSON-LD gefunden: price=249, currency=EUR → zu teuer, skip</div>
+    <div class="step ok">✓ JSON-LD gefunden: price=149, currency=EUR, rating=4.7 → Match!</div>
+    <div class="step ok">✓ availability=InStock → Produkt verfügbar</div>
+    <div class="step ok">✓ Entscheidung in 0.3s statt 30s manuelles Parsing</div>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: API als Design-Material →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 5: API DESIGN -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="5">
+  <div class="chapter-label">Ebene 03 · API als Design-Material</div>
+  <h1><em>APIs</em> designen, nicht nur konsumieren</h1>
+
+  <p>APIs klingen nach Backend. Aber als UX Designer triffst du die Entscheidungen, die APIs formen — oft ohne es zu wissen.</p>
+
+  <div class="callout ux">
+    <p>🎨 <strong>UX-Perspektive:</strong> Jeder Flow, den du designst, hat einen „unsichtbaren Zwilling" — die API dahinter. Wenn dein Flow kompliziert ist, ist auch die API kompliziert. Und ein Agent muss beide verstehen.</p>
+  </div>
+
+  <h2>Was du als Designer beeinflusst</h2>
+
+  <h3>1. Flow-Komplexität = API-Komplexität</h3>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Überengineered</div>
+      <pre>Produktsuche:
+1. Seite laden
+2. Suchfeld expandieren (Animation)
+3. Tippen → Live-Vorschläge
+4. Vorschlag klicken → Zwischenseite
+5. Filter: 3 separate Slider
+6. „Anwenden" klicken
+7. Ergebnisse neu laden
+8. Infinite Scroll
+
+= 8 Interaktionen, kein klarer API-Call</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Klar & Direkt</div>
+      <pre>Produktsuche:
+1. Suchbegriff eingeben
+2. Filter setzen (URL-Parameter)
+3. Ergebnisse mit Pagination
+
+→ GET /search?q=...&price_max=200
+→ 1 API-Call, 1 Ergebnis-Seite
+→ Agent kann das direkt aufrufen
+→ URL ist teilbar und bookmarkbar</pre>
+    </div>
+  </div>
+
+  <h3>2. Die „API-First"-Frage</h3>
+  <p>Bei jedem neuen Feature kannst du fragen:</p>
+  <div class="callout">
+    <p>💡 <strong>„Könnte ein Agent diesen Flow auch ohne UI erledigen?"</strong><br>Wenn nein: Der Flow ist zu komplex oder zu visuell kodiert. Vereinfache ihn — das hilft auch menschlichen Nutzern.</p>
+  </div>
+
+  <h3>3. URL-Design ist UX-Design</h3>
+  <p>Gute URLs sind ein UX-Feature — und die natürliche Schnittstelle für Agents:</p>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Kryptisch</div>
+      <pre>/shop#/results?f=e3JhbmdlO...
+/product?id=a8f3c2&view=1&ref=int
+/checkout/step2?token=xyz123</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Lesbar</div>
+      <pre>/shop/kopfhoerer?max_price=200
+/produkte/studio-monitor-kopfhoerer
+/checkout/zahlung</pre>
+    </div>
+  </div>
+
+  <div class="handoff">
+    <div class="handoff-header"><span class="arrow">↔</span> UX → Dev Handoff: APIs</div>
+    <div class="handoff-cols">
+      <div class="handoff-col">
+        <h4><span class="role-tag ux">UX</span> Du forderst ein</h4>
+        <ul>
+          <li>Jeder Kern-Flow soll auch als API existieren</li>
+          <li>Filter und Suche als URL-Parameter</li>
+          <li>Lesbare, stabile URLs</li>
+          <li>Pagination statt Infinite Scroll</li>
+          <li>Zustände in der URL abgebildet</li>
+        </ul>
+      </div>
+      <div class="handoff-col">
+        <h4><span class="role-tag dev">DEV</span> Team implementiert</h4>
+        <ul>
+          <li>REST/GraphQL-Endpunkte</li>
+          <li>OpenAPI-Dokumentation</li>
+          <li>Query-Parameter-Handling</li>
+          <li>Cursor/Offset-Pagination</li>
+          <li>URL-Routing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Formulare & Flows →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 6: FORMULARE -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="6">
+  <div class="chapter-label">Ebene 04 · Formulare & Flows</div>
+  <h1>Formulare: Dein <em>größter</em> Hebel</h1>
+
+  <p>Formulare sind die Ebene, auf der UX Designer den <strong>größten direkten Einfluss</strong> haben. Jede Entscheidung im Form-Design beeinflusst, ob ein Agent (und ein Mensch) den Flow schafft.</p>
+
+  <h2>Die 6 Design-Entscheidungen</h2>
+
+  <h3>1. Explizite Labels — immer</h3>
+  <p>Kein Placeholder als Label. Kein „es ist ja offensichtlich". Jedes Feld braucht ein sichtbares, beschreibendes Label.</p>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Placeholder als Label</div>
+      <pre>┌──────────────────────┐
+│ E-Mail-Adresse       │  ← verschwindet beim Tippen
+└──────────────────────┘
+┌──────────────────────┐
+│ Passwort             │  ← Agent weiß nicht, was hier war
+└──────────────────────┘</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Echte Labels</div>
+      <pre>E-Mail-Adresse
+┌──────────────────────┐
+│ lisa@example.com     │
+└──────────────────────┘
+Passwort
+┌──────────────────────┐
+│ ••••••••             │
+└──────────────────────┘</pre>
+    </div>
+  </div>
+
+  <h3>2. Native Elemente wählen</h3>
+  <p>Jedes Custom-Element ist ein Risiko. Deine Design-System-Entscheidung hat direkten Impact:</p>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Custom Everything</div>
+      <pre>Custom Dropdown (div + JS)
+Custom Datepicker (Canvas)
+Custom Checkbox (CSS-only)
+Custom Number Stepper
+Drag & Drop Slider für Mengen
+
+→ Jedes einzelne: ARIA-Implementation nötig
+→ Oft fehlerhaft oder unvollständig</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Native First</div>
+      <pre>&lt;select&gt; — nativer Dropdown
+&lt;input type="date"&gt; — nativer Picker
+&lt;input type="checkbox"&gt; — native Box
+&lt;input type="number"&gt; — nativer Stepper
+&lt;input type="range"&gt; — nativer Slider
+
+→ Funktioniert sofort mit Agents
+→ Styling trotzdem möglich</pre>
+    </div>
+  </div>
+
+  <div class="callout ux">
+    <p>🎨 <strong>Design-Regel:</strong> „Custom" sollte die Ausnahme sein, nicht der Standard. Frag dich bei jedem Custom-Element: Gewinnt der Nutzer wirklich etwas — oder ist es nur visuelles Spielzeug?</p>
+  </div>
+
+  <h3>3. Beschreibende Fehlermeldungen</h3>
+  <p>Nicht: „Fehler in Feld 3." Sondern: „Bitte gib eine gültige E-Mail-Adresse ein (z.B. name@example.com)."</p>
+  <ul>
+    <li><strong>Was ist falsch</strong> — „Die PLZ ist ungültig"</li>
+    <li><strong>Was wird erwartet</strong> — „5 Ziffern, z.B. 10115"</li>
+    <li><strong>Wo ist der Fehler</strong> — direkt am Feld, nicht nur oben auf der Seite</li>
+  </ul>
+
+  <h3>4. Logische Gruppierung</h3>
+  <p>Zusammengehörige Felder gruppieren — visuell <em>und</em> semantisch:</p>
+  <ul>
+    <li><strong>Adresse</strong> — Straße, PLZ, Stadt, Land als eine Gruppe</li>
+    <li><strong>Persönliche Daten</strong> — Name, Geburtsdatum, Kontakt als eine Gruppe</li>
+    <li><strong>Zahlung</strong> — Zahlungsart, Kartennummer, Ablaufdatum als eine Gruppe</li>
+  </ul>
+
+  <h3>5. Klarer Fortschritt bei Multi-Step</h3>
+  <p>Wenn dein Checkout 3 Schritte hat: Zeig dem Nutzer (und Agent) wo er ist, was kommt, was fertig ist.</p>
+
+  <h3>6. Beschreibende Submit-Buttons</h3>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Generisch</div>
+      <pre>[ Absenden ]
+[ Weiter ]
+[ OK ]
+[ Submit ]</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Beschreibend</div>
+      <pre>[ Bestellung aufgeben ]
+[ Weiter zur Zahlung ]
+[ Konto erstellen ]
+[ Änderungen speichern ]</pre>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Content & Klarheit →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 7: CONTENT READABILITY -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="7">
+  <div class="chapter-label">Ebene 05 · Content & Klarheit</div>
+  <h1>Klartext für <em>alle</em></h1>
+
+  <p>Content Design ist vielleicht die unterschätzteste Ebene — und die, die UX Designer am <strong>direktesten beeinflussen</strong>. Jedes Wort, jedes Label, jede Fehlermeldung ist eine Design-Entscheidung.</p>
+
+  <h2>Die 5 Content-Prinzipien</h2>
+
+  <h3>1. Information nie nur visuell codieren</h3>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Nur visuell</div>
+      <pre>🟢 (= Auf Lager?)
+🔴 (= Ausverkauft?)
+Text in Rot (= Fehler? Sale? Warnung?)
+★★★★☆ (= 4/5? ohne Text: unklar)
+Icon ohne Label (🛒 ← Warenkorb?)</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Text + Visuell</div>
+      <pre>🟢 Auf Lager — Lieferung bis Mi.
+🔴 Ausverkauft
+149€ (reduziert von 199€)
+★★★★☆ 4,2 von 5 (328 Bewertungen)
+🛒 Warenkorb (2 Artikel)</pre>
+    </div>
+  </div>
+
+  <h3>2. Konsistente Terminologie</h3>
+  <p>Ein Agent, der auf Seite 1 „Warenkorb" gelernt hat, sucht auf Seite 2 nach „Warenkorb" — nicht nach „Shopping Bag" oder „Einkaufswagen".</p>
+
+  <div class="callout ux">
+    <p>🎨 <strong>UX-Aktion:</strong> Erstelle ein Content-Glossar für dein Produkt. 20 Begriffe reichen: Button-Labels, Navigation, Status-Texte, Fehlermeldungen. Das ist kein Nice-to-have — es ist die Basis für Agent-Kompatibilität.</p>
+  </div>
+
+  <h3>3. Beschreibende Alt-Texte</h3>
+  <p>Als UX Designer definierst du, <em>was</em> ein Bild kommunizieren soll. Der Alt-Text sollte diese Intention transportieren:</p>
+  <ul>
+    <li><strong>Produktbild:</strong> „Schwarzer Over-Ear Kopfhörer von vorne, gepolsterte Ohrmuscheln sichtbar"</li>
+    <li><strong>Stimmungsbild:</strong> <code>alt=""</code> (rein dekorativ → leer lassen)</li>
+    <li><strong>Chart/Grafik:</strong> „Umsatzentwicklung Q1–Q4: Anstieg von 2,1 auf 3,8 Mio €"</li>
+  </ul>
+
+  <h3>4. Klare Call-to-Actions</h3>
+  <p>Jeder CTA beantwortet: <strong>Was passiert, wenn ich klicke?</strong></p>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Vage</div>
+      <pre>[ Mehr erfahren ]
+[ Hier klicken ]
+[ Los ]
+[ Weiter ]
+[ Absenden ]</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Klar</div>
+      <pre>[ Alle Funktionen ansehen ]
+[ Kostenlos testen — 14 Tage ]
+[ Suche starten ]
+[ Weiter zur Zahlung ]
+[ Nachricht senden ]</pre>
+    </div>
+  </div>
+
+  <h3>5. Progressive Disclosure — richtig gemacht</h3>
+  <p>Nicht alles auf einmal zeigen ist gutes Design. Aber versteckte Infos müssen <strong>zugänglich</strong> bleiben:</p>
+  <ul>
+    <li><strong>Expandable Sections</strong> mit klaren Triggern (nicht: Content versteckt hinter Hover)</li>
+    <li><strong>Tabs</strong> mit beschreibenden Labels (nicht: Tab 1, Tab 2, Tab 3)</li>
+    <li><strong>Tooltips</strong> nur für Bonus-Info, nie für Pflicht-Info</li>
+  </ul>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Hands-on Audit →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 8: UX AUDIT -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="8">
+  <div class="chapter-label">Hands-on · UX Audit</div>
+  <h1>Übung: <em>Dual-Lens</em> Audit</h1>
+
+  <p>Jetzt wird's praktisch. Du betrachtest eine Website durch zwei Linsen gleichzeitig: <strong>als Mensch</strong> und <strong>als Agent</strong>.</p>
+
+  <div class="audit-task">
+    <h3>🎯 Audit-Aufgabe</h3>
+    <p>Wähle eine echte Website (euer eigenes Produkt oder eine bekannte E-Commerce-Seite). Analysiere sie auf <strong>drei Ebenen</strong>:</p>
+    <ol class="steps">
+      <li><strong>Struktur-Audit:</strong> Öffne den Accessibility-Tree (Chrome DevTools → Accessibility). Ergibt die Struktur Sinn, auch ohne Visuals?</li>
+      <li><strong>Content-Audit:</strong> Lies nur die Texte — Labels, Buttons, Headings. Ist alles verständlich ohne visuellen Kontext?</li>
+      <li><strong>Flow-Audit:</strong> Versuche einen Kern-Flow (Suche → Produkt → Warenkorb) rein über Tastatur. Wo bleibst du hängen?</li>
+    </ol>
+  </div>
+
+  <h2>Audit-Template: Was du notierst</h2>
+
+  <div class="editor-wrap">
+    <div class="editor-toolbar">
+      <span>Audit-Notizen</span>
+      <button class="btn-reset" onclick="resetEditor()">Reset</button>
+    </div>
+    <div class="editor-area" style="grid-template-columns:1fr;">
+      <textarea id="codeEditor" spellcheck="false" style="min-height:350px; width:100%;">## Audit: [Website-Name]
+## Datum: [heute]
+
+### Struktur (Ebene 1: Semantik)
+- [ ] Heading-Hierarchie logisch? (H1 → H2 → H3)
+- [ ] Navigation als <nav> erkennbar?
+- [ ] Buttons vs. Links korrekt verwendet?
+- [ ] Landmarks vorhanden? (header, main, footer)
+Notizen: ...
+
+### Daten (Ebene 2: Structured Data)
+- [ ] JSON-LD im Quellcode vorhanden?
+- [ ] Welche Datenpunkte fehlen?
+- [ ] Preise/Ratings maschinenlesbar?
+Notizen: ...
+
+### Flows (Ebene 3: API / URLs)
+- [ ] Filter als URL-Parameter?
+- [ ] Suchergebnisse verlinkbar?
+- [ ] Pagination oder Infinite Scroll?
+Notizen: ...
+
+### Formulare (Ebene 4)
+- [ ] Labels mit Inputs verbunden?
+- [ ] Native Elemente oder Custom?
+- [ ] Fehlermeldungen beschreibend?
+- [ ] Autocomplete-Attribute vorhanden?
+Notizen: ...
+
+### Content (Ebene 5)
+- [ ] Infos auch ohne Farbe/Icons verständlich?
+- [ ] Button-Labels beschreibend?
+- [ ] Alt-Texte auf Produktbildern?
+- [ ] Konsistente Begriffe?
+Notizen: ...
+
+### Top 3 Findings
+1.
+2.
+3.
+
+### Quick Wins (sofort umsetzbar)
+-
+-
+-</textarea>
+    </div>
+  </div>
+
+  <h2>Werkzeuge für den Audit</h2>
+  <ul>
+    <li><strong>Chrome DevTools → Accessibility Tab</strong> — zeigt den Accessibility-Tree</li>
+    <li><strong>HeadingsMap Extension</strong> — visualisiert die Heading-Hierarchie</li>
+    <li><strong>WAVE Extension</strong> — markiert Accessibility-Probleme direkt auf der Seite</li>
+    <li><strong>Schema.org Validator</strong> — prüft JSON-LD (validator.schema.org)</li>
+    <li><strong>Lighthouse → Accessibility</strong> — automatisierter Score</li>
+    <li><strong>Tab-Taste</strong> — der simpelste Agent-Test der Welt</li>
+  </ul>
+
+  <div class="callout success">
+    <p>✅ <strong>Power-Move:</strong> Die Tab-Taste ist dein bester Freund. Wenn du einen Flow nur mit Tab + Enter durchkommst, kommt ein Agent auch durch.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Agent-Walkthrough →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 9: AGENT WALKTHROUGH -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="9">
+  <div class="chapter-label">Hands-on · Agent-Test</div>
+  <h1>Lass den <em>Agent</em> laufen</h1>
+
+  <p>Der ultimative Test: Ein echter AI-Agent versucht, eine Aufgabe auf der Website zu erledigen. Du beobachtest — und dokumentierst, wo er scheitert.</p>
+
+  <div class="scenario">
+    <div class="scenario-header">🤖 So geht's</div>
+    <div class="scenario-body">
+      <p>Gebt einem AI-Agent (ChatGPT Browse, Claude Computer Use, oder ähnlich) eine <strong>konkrete Aufgabe</strong> und beobachtet Schritt für Schritt:</p>
+      <p style="font-style:italic; color:var(--fg); font-size:1rem; margin: 1rem 0; padding: 1rem; background: var(--code-bg); color: #e0e0e0; border-radius: 8px; font-family: var(--mono);">"Gehe auf [URL]. Suche kabellose Kopfhörer unter 200€. Wähle das best-bewertete Produkt. Lege es in den Warenkorb. Gehe zum Checkout. Dokumentiere jeden Schritt."</p>
+    </div>
+  </div>
+
+  <h2>Was ihr beobachtet</h2>
+  <div class="agent-log">
+    <div class="step info">→ Agent öffnet die Seite</div>
+    <div class="step ok">✓ Navigation gefunden (semantisches &lt;nav&gt;)</div>
+    <div class="step ok">✓ Suchfeld erkannt (input[type=search])</div>
+    <div class="step warn">⚠ Suchergebnisse: Preise nur visuell → Agent rät</div>
+    <div class="step fail">✗ Filter: Custom-Slider → nicht bedienbar</div>
+    <div class="step warn">⚠ Agent nutzt URL-Workaround: ?max_price=200 → funktioniert!</div>
+    <div class="step ok">✓ Produktseite: JSON-LD vorhanden → Rating + Preis sofort lesbar</div>
+    <div class="step fail">✗ „In den Warenkorb" → div mit onclick, kein button → Agent versucht 3x</div>
+    <div class="step fail">✗ Cookie-Banner überdeckt den Button → Agent blockiert</div>
+  </div>
+
+  <h2>Ergebnisse einordnen</h2>
+  <p>Für jedes Finding: <strong>Welche Ebene ist betroffen und wer kann es fixen?</strong></p>
+
+  <div class="handoff">
+    <div class="handoff-header"><span class="arrow">📋</span> Finding → Zuordnung</div>
+    <div class="handoff-cols">
+      <div class="handoff-col">
+        <h4><span class="role-tag ux">UX</span> UX kann direkt beeinflussen</h4>
+        <ul>
+          <li>Button-Labels → beschreibender machen</li>
+          <li>Placeholder → durch echte Labels ersetzen</li>
+          <li>Custom Dropdown → durch native ersetzen</li>
+          <li>Heading-Hierarchie → in Specs definieren</li>
+          <li>Content-Glossar → Konsistenz sicherstellen</li>
+          <li>Cookie-Banner → UX-Flow überdenken</li>
+        </ul>
+      </div>
+      <div class="handoff-col">
+        <h4><span class="role-tag dev">DEV</span> An Dev-Team übergeben</h4>
+        <ul>
+          <li>Div → button refactoren</li>
+          <li>JSON-LD auf Produktseiten ergänzen</li>
+          <li>ARIA-Attribute auf Custom-Elementen</li>
+          <li>Filter als URL-Parameter exponieren</li>
+          <li>Pagination statt Infinite Scroll</li>
+          <li>Autocomplete-Attribute auf Inputs</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout ux">
+    <p>🎨 <strong>UX-Insight:</strong> Die meisten Agent-Fails sind auch Accessibility-Fails. Dein Agent-Audit ist gleichzeitig ein Accessibility-Audit. Zwei Fliegen, eine Klappe.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Scorecard →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 10: SCORECARD -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="10">
+  <div class="chapter-label">Hands-on · Bewertung</div>
+  <h1>Agent-Friendliness <em>Scorecard</em></h1>
+  <p>Bewerte die auditierte Website auf jeder Ebene. Achte besonders auf die Ebenen, die du als UX Designer direkt beeinflussen kannst.</p>
+
+  <div class="score-card">
+    <div class="score-item">
+      <div class="score-icon">🏗</div>
+      <div class="score-label">Semantik</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="score-item">
+      <div class="score-icon">📊</div>
+      <div class="score-label">Structured Data</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="score-item">
+      <div class="score-icon">🔌</div>
+      <div class="score-label">API / URLs</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="score-item">
+      <div class="score-icon">📝</div>
+      <div class="score-label">Formulare</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="score-item">
+      <div class="score-icon">👁</div>
+      <div class="score-label">Content</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin: 1.5rem 0;">
+    <div style="font-size:.85rem; color:var(--muted); margin-bottom:.25rem;">Gesamtscore</div>
+    <div id="totalScore" style="font-size:3rem; font-weight:800; font-family:var(--mono); background:linear-gradient(135deg,var(--accent),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">— / 25</div>
+  </div>
+
+  <h2>UX-Einfluss pro Ebene</h2>
+  <ul>
+    <li>🏗 <strong>Semantik</strong> — <span class="role-tag ux">UX</span> <span class="role-tag dev">DEV</span> Du definierst die Intention, Dev implementiert</li>
+    <li>📊 <strong>Structured Data</strong> — <span class="role-tag ux">UX</span> Du lieferst das Content-Modell, Dev baut JSON-LD</li>
+    <li>🔌 <strong>API / URLs</strong> — <span class="role-tag ux">UX</span> Du forderst klare URLs und einfache Flows ein</li>
+    <li>📝 <strong>Formulare</strong> — <span class="role-tag ux">UX</span> <strong>Höchster UX-Einfluss!</strong> Labels, Elemente, Flows, Fehler</li>
+    <li>👁 <strong>Content</strong> — <span class="role-tag ux">UX</span> <strong>Höchster UX-Einfluss!</strong> Texte, Terminologie, Alt-Texte</li>
+  </ul>
+
+  <div class="callout">
+    <p>💡 <strong>Priorisierung:</strong> Fang bei den Ebenen an, die du direkt beeinflussen kannst: <strong>Formulare und Content.</strong> Dann arbeite dich zur Semantik und den Daten vor.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Checkliste →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 11: CHECKLISTE & HANDOFF -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="11">
+  <div class="chapter-label">Abschluss</div>
+  <h1>Deine <em>Checkliste</em> für den Alltag</h1>
+  <p>Nimm diese Checkliste mit. Sie ist nach deinem Einflussbereich sortiert — von „kannst du direkt ändern" bis „übergibst du im Handoff".</p>
+
+  <h2>🎨 Direkt im Design beeinflussbar</h2>
+  <div class="checklist">
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Jedes Feld hat ein sichtbares, beschreibendes Label (kein Placeholder-only)</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Button-Labels beschreiben die Aktion: „Bestellung aufgeben" statt „Absenden"</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Info wird nie nur über Farbe/Icons kommuniziert — immer auch als Text</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Konsistente Terminologie über alle Seiten (Content-Glossar vorhanden)</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Heading-Hierarchie im Design annotiert (H1 → H2 → H3, keine Sprünge)</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Fehlermeldungen sagen, was falsch ist UND was erwartet wird</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Native form elements bevorzugt (select, date, checkbox statt Custom)</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Alt-Text-Intention für alle inhaltlichen Bilder definiert</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Interaktive Elemente klar als Button oder Link annotiert</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Multi-Step-Flows zeigen klaren Fortschritt</label>
+  </div>
+
+  <h2>↔ Im Handoff an Dev übergeben</h2>
+  <div class="checklist">
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Semantische Intention pro Element dokumentiert (Button/Link/Heading-Level)</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Content-Modell pro Seitentyp (= Structured Data Spec)</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Anforderung: Kern-Flows als API verfügbar</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Anforderung: Filter/Suche als URL-Parameter</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Anforderung: Autocomplete-Attribute auf Formularen</label>
+    <label class="checklist-item" onclick="toggleCheck(this)"><input type="checkbox"> Anforderung: Pagination statt Infinite Scroll</label>
+  </div>
+
+  <h2>Die Kernlektion</h2>
+  <div class="callout success" style="font-size:1.1rem;">
+    <p>✅ <strong>Du musst keinen Code schreiben, um agent-freundliches Design zu liefern.</strong><br><br>
+    Deine Werkzeuge: Labels, Terminologie, Heading-Struktur, Komponentenwahl, Content-Modelle, beschreibende Texte.<br><br>
+    <strong>Was für AI-Agents funktioniert = Accessibility = SEO = bessere UX.</strong> Es sind keine vier verschiedenen Disziplinen — es ist eine.</p>
+  </div>
+
+  <h2>Weiterführende Ressourcen</h2>
+  <ul>
+    <li><strong>Schema.org</strong> — schema.org/docs/schemas.html</li>
+    <li><strong>WAI-ARIA Authoring Practices</strong> — w3.org/WAI/ARIA/apg</li>
+    <li><strong>Inclusive Design Principles</strong> — inclusivedesignprinciples.org</li>
+    <li><strong>Content Design London</strong> — content-design.london/reading</li>
+    <li><strong>Lighthouse Accessibility Audit</strong> — Chrome DevTools</li>
+  </ul>
+
+  <div class="spacer"></div>
+  <p style="text-align:center; font-size:1.5rem;">🎉</p>
+  <p style="text-align:center; color:var(--muted);">Masterclass abgeschlossen. Design for all — Menschen und Maschinen.</p>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" disabled>Fertig ✓</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+const chapters = document.querySelectorAll('.chapter');
+const links = document.querySelectorAll('.sidebar-link');
+const progressBar = document.getElementById('progressBar');
+const chapterLabel = document.getElementById('chapterLabel');
+let current = 0;
+const visited = new Set([0]);
+
+function goTo(i) {
+  if (i < 0 || i >= chapters.length) return;
+  chapters[current].classList.remove('active');
+  current = i;
+  visited.add(i);
+  chapters[current].classList.add('active');
+  links.forEach(l => l.classList.remove('active'));
+  links[i].classList.add('active');
+  visited.forEach(v => links[v].classList.add('done'));
+  progressBar.style.width = ((i / (chapters.length - 1)) * 100) + '%';
+  chapterLabel.textContent = links[i].textContent.replace('✓','').trim();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelector('.sidebar').classList.remove('open');
+}
+
+function next() { goTo(current + 1); }
+function prev() { goTo(current - 1); }
+links.forEach((l, i) => l.addEventListener('click', () => goTo(i)));
+
+function checkQuiz(el, qid) {
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  if (el.parentElement.querySelector('.correct, .wrong')) return;
+  const correct = el.dataset.correct === 'true';
+  opts.forEach(o => { if (o.dataset.correct === 'true') o.classList.add('correct'); });
+  if (!correct) el.classList.add('wrong');
+  document.getElementById(qid + (correct ? '-right' : '-wrong')).classList.add('show');
+}
+
+function toggleReveal(id) { document.getElementById(id).classList.toggle('open'); }
+
+function toggleCheck(el) { el.classList.toggle('checked'); }
+
+function updateTotal() {
+  const selects = document.querySelectorAll('.score-card select');
+  let total = 0, count = 0;
+  selects.forEach(s => { const v = parseInt(s.value); if (!isNaN(v)) { total += v; count++; } });
+  document.getElementById('totalScore').textContent = (count > 0 ? total : '—') + ' / 25';
+}
+
+const defaultCode = document.getElementById('codeEditor').value;
+function resetEditor() { document.getElementById('codeEditor').value = defaultCode; }
+
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+});
+</script>
+
+</body>
+</html>

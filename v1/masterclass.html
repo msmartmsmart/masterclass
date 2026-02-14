@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masterclass — Design for LLMs and Humans</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
+  :root {
+    --bg: #fafafa;
+    --fg: #111;
+    --muted: #666;
+    --subtle: #999;
+    --accent: #0057ff;
+    --accent-soft: #e8efff;
+    --accent-dark: #0044cc;
+    --purple: #7c3aed;
+    --green: #22c55e;
+    --red: #ef4444;
+    --orange: #f59e0b;
+    --border: #e0e0e0;
+    --card-bg: #fff;
+    --code-bg: #1a1a2e;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --mono: 'JetBrains Mono', 'SF Mono', monospace;
+    --sans: 'Inter', -apple-system, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--fg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ===== TOP NAV ===== */
+  .topnav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(250,250,250,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    height: 56px;
+    padding: 0 2rem;
+    gap: 1.5rem;
+  }
+
+  .topnav-brand {
+    font-weight: 700;
+    font-size: .9rem;
+    white-space: nowrap;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .topnav-progress {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .topnav-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, var(--accent), var(--purple));
+    border-radius: 2px;
+    transition: width .4s ease;
+  }
+
+  .topnav-chapter {
+    font-size: .8rem;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ===== SIDEBAR ===== */
+  .sidebar {
+    position: fixed;
+    top: 56px;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    background: var(--card-bg);
+    border-right: 1px solid var(--border);
+    overflow-y: auto;
+    padding: 1.5rem 0;
+    z-index: 90;
+    transition: transform .3s ease;
+  }
+
+  .sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 68px;
+    left: 12px;
+    z-index: 95;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    cursor: pointer;
+    font-size: 1.1rem;
+    line-height: 1;
+    align-items: center;
+    justify-content: center;
+  }
+
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); box-shadow: 4px 0 20px rgba(0,0,0,.1); }
+    .sidebar-toggle { display: flex; }
+    .main { margin-left: 0 !important; }
+  }
+
+  .sidebar-section {
+    padding: .5rem 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .sidebar-section:first-child { margin-top: 0; }
+
+  .sidebar-section-label {
+    font-size: .65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--subtle);
+    margin-bottom: .5rem;
+  }
+
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .5rem .75rem;
+    margin: 2px 0;
+    border-radius: var(--radius-sm);
+    font-size: .85rem;
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all .15s ease;
+  }
+
+  .sidebar-link:hover { background: var(--accent-soft); color: var(--fg); }
+  .sidebar-link.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+  .sidebar-link .num { font-family: var(--mono); font-size: .7rem; color: var(--subtle); min-width: 20px; }
+  .sidebar-link.active .num { color: var(--accent); }
+  .sidebar-link .check { margin-left: auto; font-size: .75rem; opacity: 0; }
+  .sidebar-link.done .check { opacity: 1; }
+
+  /* ===== MAIN ===== */
+  .main {
+    margin-left: 280px;
+    margin-top: 56px;
+    min-height: calc(100vh - 56px);
+  }
+
+  /* ===== SLIDES / CHAPTERS ===== */
+  .chapter {
+    display: none;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 4rem 2rem 6rem;
+    animation: fadeIn .4s ease;
+  }
+
+  .chapter.active { display: block; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+  .chapter-label {
+    font-size: .7rem;
+    font-weight: 600;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: .75rem;
+  }
+
+  .chapter h1 {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -.03em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .chapter h1 em {
+    font-style: normal;
+    background: linear-gradient(135deg, var(--accent), var(--purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .chapter h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-top: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .chapter h3 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: .75rem;
+  }
+
+  .chapter p {
+    font-size: 1.05rem;
+    color: var(--muted);
+    margin-bottom: 1.25rem;
+    max-width: 640px;
+  }
+
+  .chapter p strong { color: var(--fg); }
+
+  .chapter ul, .chapter ol {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .chapter li {
+    font-size: 1rem;
+    color: var(--muted);
+    margin-bottom: .5rem;
+  }
+
+  .chapter li strong { color: var(--fg); }
+
+  /* ===== CALLOUT ===== */
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: var(--accent-soft);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 1.25rem 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .callout.warn { border-color: var(--orange); background: #fef9e7; }
+  .callout.success { border-color: var(--green); background: #f0fdf4; }
+
+  .callout p { margin: 0; font-size: .95rem; color: var(--fg); }
+
+  /* ===== CODE ===== */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    overflow-x: auto;
+    position: relative;
+  }
+
+  .code-block code {
+    font-family: var(--mono);
+    font-size: .82rem;
+    line-height: 1.8;
+    color: #e0e0e0;
+    white-space: pre;
+  }
+
+  .code-block .label {
+    position: absolute;
+    top: .75rem;
+    right: .75rem;
+    font-size: .6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: #555;
+    background: rgba(255,255,255,.06);
+    padding: .2rem .6rem;
+    border-radius: 4px;
+  }
+
+  .tag { color: #c084fc; }
+  .attr { color: #60a5fa; }
+  .val { color: #86efac; }
+  .cmt { color: #555; }
+  .kw { color: #f472b6; }
+
+  /* ===== COMPARISON ===== */
+  .comparison {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  @media (max-width: 640px) { .comparison { grid-template-columns: 1fr; } }
+
+  .comp-col {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--card-bg);
+  }
+
+  .comp-col-header {
+    padding: .6rem 1rem;
+    font-size: .75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .comp-col.bad .comp-col-header { background: #fef2f2; color: var(--red); }
+  .comp-col.good .comp-col-header { background: #f0fdf4; color: var(--green); }
+
+  .comp-col pre {
+    padding: 1rem;
+    font-family: var(--mono);
+    font-size: .78rem;
+    line-height: 1.7;
+    white-space: pre-wrap;
+    color: var(--muted);
+  }
+
+  /* ===== INTERACTIVE EDITOR ===== */
+  .editor-wrap {
+    margin: 2rem 0;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--card-bg);
+  }
+
+  .editor-toolbar {
+    display: flex;
+    align-items: center;
+    padding: .5rem 1rem;
+    background: #f5f5f5;
+    border-bottom: 1px solid var(--border);
+    gap: .75rem;
+    flex-wrap: wrap;
+  }
+
+  .editor-toolbar span {
+    font-size: .75rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+
+  .editor-toolbar button {
+    margin-left: auto;
+    font-size: .8rem;
+    font-weight: 600;
+    padding: .4rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    background: var(--accent);
+    color: #fff;
+    transition: background .15s;
+  }
+
+  .editor-toolbar button:hover { background: var(--accent-dark); }
+
+  .editor-toolbar .btn-reset {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+    margin-left: 0;
+  }
+
+  .editor-toolbar .btn-reset:hover { background: #eee; }
+
+  .editor-area {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 280px;
+  }
+
+  @media (max-width: 700px) {
+    .editor-area { grid-template-columns: 1fr; }
+  }
+
+  .editor-area textarea {
+    font-family: var(--mono);
+    font-size: .8rem;
+    line-height: 1.7;
+    padding: 1rem;
+    border: none;
+    resize: none;
+    outline: none;
+    background: var(--code-bg);
+    color: #e0e0e0;
+    min-height: 280px;
+  }
+
+  .editor-area .preview {
+    border-left: 1px solid var(--border);
+    padding: 1rem;
+    overflow: auto;
+    background: #fff;
+    min-height: 280px;
+  }
+
+  .editor-area .preview iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    min-height: 260px;
+  }
+
+  /* ===== QUIZ ===== */
+  .quiz {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin: 2rem 0;
+    background: var(--card-bg);
+  }
+
+  .quiz-q {
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+  }
+
+  .quiz-options { display: flex; flex-direction: column; gap: .5rem; }
+
+  .quiz-opt {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: .95rem;
+    transition: all .15s;
+  }
+
+  .quiz-opt:hover { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.selected { border-color: var(--accent); background: var(--accent-soft); }
+  .quiz-opt.correct { border-color: var(--green); background: #f0fdf4; }
+  .quiz-opt.wrong { border-color: var(--red); background: #fef2f2; }
+
+  .quiz-opt .marker {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .7rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .quiz-opt.correct .marker { border-color: var(--green); background: var(--green); color: #fff; }
+  .quiz-opt.wrong .marker { border-color: var(--red); background: var(--red); color: #fff; }
+
+  .quiz-explain {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: var(--radius-sm);
+    font-size: .9rem;
+    display: none;
+  }
+
+  .quiz-explain.show { display: block; }
+  .quiz-explain.right { background: #f0fdf4; color: #166534; }
+  .quiz-explain.wrong-expl { background: #fef2f2; color: #991b1b; }
+
+  /* ===== CHECKLIST ===== */
+  .checklist {
+    margin: 1.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+  }
+
+  .checklist-item {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .75rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all .15s;
+    font-size: .95rem;
+  }
+
+  .checklist-item:hover { border-color: var(--accent); }
+
+  .checklist-item input[type=checkbox] {
+    width: 18px; height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+
+  .checklist-item.checked { background: #f0fdf4; border-color: var(--green); text-decoration: line-through; color: var(--muted); }
+
+  /* ===== AUDIT TASK ===== */
+  .audit-task {
+    border: 2px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 2rem;
+    margin: 2rem 0;
+    background: linear-gradient(135deg, var(--accent-soft), #f5f0ff);
+  }
+
+  .audit-task h3 { color: var(--accent); margin-top: 0; }
+
+  .audit-task .steps {
+    counter-reset: auditstep;
+    list-style: none;
+    padding: 0;
+  }
+
+  .audit-task .steps li {
+    counter-increment: auditstep;
+    padding: .5rem 0 .5rem 2.5rem;
+    position: relative;
+    font-size: .95rem;
+  }
+
+  .audit-task .steps li::before {
+    content: counter(auditstep);
+    position: absolute;
+    left: 0;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: .75rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ===== SCORE CARD ===== */
+  .score-card {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: .75rem;
+    margin: 2rem 0;
+  }
+
+  @media (max-width: 640px) { .score-card { grid-template-columns: repeat(2, 1fr); } }
+
+  .score-item {
+    text-align: center;
+    padding: 1.25rem .75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .score-item:hover { border-color: var(--accent); }
+
+  .score-item .score-icon { font-size: 1.5rem; margin-bottom: .5rem; }
+  .score-item .score-label { font-size: .75rem; color: var(--muted); font-weight: 500; }
+  .score-item .score-val {
+    font-size: 1.5rem; font-weight: 700; margin-top: .25rem;
+    font-family: var(--mono);
+  }
+
+  .score-item select {
+    font-family: var(--mono);
+    font-size: 1.2rem;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    text-align: center;
+    cursor: pointer;
+    width: 60px;
+    color: var(--fg);
+    outline: none;
+  }
+
+  /* ===== NAV BUTTONS ===== */
+  .chapter-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 4rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+    gap: 1rem;
+  }
+
+  .chapter-nav button {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .75rem 1.5rem;
+    font-size: .9rem;
+    font-weight: 600;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    cursor: pointer;
+    transition: all .15s;
+    color: var(--fg);
+    font-family: var(--sans);
+  }
+
+  .chapter-nav button:hover { border-color: var(--accent); color: var(--accent); }
+
+  .chapter-nav button.primary {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+
+  .chapter-nav button.primary:hover { background: var(--accent-dark); }
+
+  .chapter-nav button:disabled {
+    opacity: .3;
+    cursor: default;
+  }
+
+  /* ===== REVEAL ===== */
+  .reveal-trigger {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--accent);
+    cursor: pointer;
+    border: none;
+    background: none;
+    padding: .5rem 0;
+    font-family: var(--sans);
+  }
+
+  .reveal-trigger:hover { text-decoration: underline; }
+
+  .reveal-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .4s ease;
+  }
+
+  .reveal-content.open { max-height: 2000px; }
+
+  /* ===== LAYER VISUAL ===== */
+  .layer-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 2rem 0;
+  }
+
+  .layer-bar {
+    padding: 1rem 1.5rem;
+    font-size: .9rem;
+    font-weight: 600;
+    color: #fff;
+    cursor: pointer;
+    transition: all .2s;
+    border-bottom: 1px solid rgba(255,255,255,.15);
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+  }
+
+  .layer-bar:first-child { border-radius: var(--radius) var(--radius) 0 0; }
+  .layer-bar:last-child { border-radius: 0 0 var(--radius) var(--radius); border-bottom: none; }
+
+  .layer-bar:hover { filter: brightness(1.1); }
+  .layer-bar.active { filter: brightness(1.15); box-shadow: inset 0 0 0 2px rgba(255,255,255,.3); }
+
+  .layer-bar .lnum { opacity: .5; font-family: var(--mono); font-size: .75rem; }
+
+  /* ===== AGENT LOG ===== */
+  .agent-log {
+    background: var(--code-bg);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 1.5rem 0;
+    font-family: var(--mono);
+    font-size: .8rem;
+    line-height: 1.8;
+    color: #888;
+    max-height: 320px;
+    overflow-y: auto;
+  }
+
+  .agent-log .step { margin-bottom: .25rem; }
+  .agent-log .ok { color: var(--green); }
+  .agent-log .fail { color: var(--red); }
+  .agent-log .info { color: var(--accent); }
+  .agent-log .warn { color: var(--orange); }
+
+  /* ===== SPACER ===== */
+  .spacer { height: 2rem; }
+
+  /* ===== SCREEN VISUAL ===== */
+  .browser-frame {
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    margin: 1.5rem 0;
+    background: var(--card-bg);
+  }
+
+  .browser-frame-bar {
+    display: flex;
+    align-items: center;
+    padding: .5rem 1rem;
+    background: #f5f5f5;
+    border-bottom: 1px solid var(--border);
+    gap: .5rem;
+  }
+
+  .browser-frame-bar .dot {
+    width: 10px; height: 10px; border-radius: 50%; background: #ddd;
+  }
+
+  .browser-frame-bar .dot:nth-child(1) { background: #ff5f57; }
+  .browser-frame-bar .dot:nth-child(2) { background: #febc2e; }
+  .browser-frame-bar .dot:nth-child(3) { background: #28c840; }
+
+  .browser-frame-bar .url {
+    flex: 1;
+    margin-left: .5rem;
+    font-size: .75rem;
+    font-family: var(--mono);
+    color: var(--subtle);
+    background: #eee;
+    padding: .3rem .75rem;
+    border-radius: 4px;
+  }
+
+  .browser-frame-content {
+    padding: 1.5rem;
+    min-height: 180px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== TOP NAV ===== -->
+<nav class="topnav">
+  <div class="topnav-brand">LLMs × Humans</div>
+  <div class="topnav-progress"><div class="topnav-progress-bar" id="progressBar"></div></div>
+  <div class="topnav-chapter" id="chapterLabel">Intro</div>
+</nav>
+
+<!-- ===== SIDEBAR TOGGLE ===== -->
+<button class="sidebar-toggle" id="sidebarToggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
+
+<!-- ===== SIDEBAR ===== -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Einführung</div>
+    <a class="sidebar-link active" data-chapter="0"><span class="num">00</span> Willkommen <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="1"><span class="num">01</span> Das Problem <span class="check">✓</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Die 5 Ebenen</div>
+    <a class="sidebar-link" data-chapter="2"><span class="num">02</span> Semantisches HTML <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="3"><span class="num">03</span> Structured Data <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="4"><span class="num">04</span> API-Design <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="5"><span class="num">05</span> Form-Struktur <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="6"><span class="num">06</span> Content Readability <span class="check">✓</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Hands-on</div>
+    <a class="sidebar-link" data-chapter="7"><span class="num">07</span> Übung: Refactoring <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="8"><span class="num">08</span> Agent-Audit <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="9"><span class="num">09</span> Scorecard <span class="check">✓</span></a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Abschluss</div>
+    <a class="sidebar-link" data-chapter="10"><span class="num">10</span> Checkliste & Takeaways <span class="check">✓</span></a>
+  </div>
+</aside>
+
+<!-- ===== MAIN ===== -->
+<div class="main">
+
+<!-- ======================================================= -->
+<!-- CHAPTER 0: WILLKOMMEN -->
+<!-- ======================================================= -->
+<div class="chapter active" data-index="0">
+  <div class="chapter-label">Kapitel 00 · Willkommen</div>
+  <h1>Design for <em>LLMs</em> and Humans</h1>
+  <p>Willkommen zur Masterclass. In den nächsten drei Stunden lernst du, Interfaces zu gestalten, die <strong>sowohl von Menschen als auch von AI-Agents</strong> verstanden und genutzt werden können.</p>
+
+  <div class="callout">
+    <p>💡 <strong>Kernthese:</strong> Was für AI-Agents funktioniert, funktioniert auch besser für Menschen — mit Screenreadern, auf langsamen Verbindungen, auf kleinen Screens.</p>
+  </div>
+
+  <h2>Was dich erwartet</h2>
+  <ul>
+    <li><strong>5 Ebenen</strong> agent-freundlichen Designs — vom Fundament bis zur Oberfläche</li>
+    <li><strong>Hands-on Refactoring</strong> — „Div-Suppe" → semantisches HTML, live im Editor</li>
+    <li><strong>Agent-Audit</strong> — ein AI-Agent testet echte Websites. Wo er scheitert, scheitern auch Menschen</li>
+    <li><strong>Checkliste</strong> zum Mitnehmen für jedes Projekt</li>
+  </ul>
+
+  <div class="layer-stack">
+    <div class="layer-bar" style="background:#0057ff" onclick="goTo(6)"><span class="lnum">05</span> Content Readability</div>
+    <div class="layer-bar" style="background:#1a5fe8" onclick="goTo(5)"><span class="lnum">04</span> Form-Struktur</div>
+    <div class="layer-bar" style="background:#3461d1" onclick="goTo(4)"><span class="lnum">03</span> API-Design</div>
+    <div class="layer-bar" style="background:#4d5fba" onclick="goTo(3)"><span class="lnum">02</span> Structured Data</div>
+    <div class="layer-bar" style="background:#6b52a3" onclick="goTo(2)"><span class="lnum">01</span> Semantisches HTML</div>
+  </div>
+  <p style="font-size:.85rem; text-align:center; color:var(--subtle);">Klicke auf eine Ebene, um direkt dorthin zu springen.</p>
+
+  <div class="chapter-nav">
+    <button disabled>← Zurück</button>
+    <button class="primary" onclick="next()">Los geht's →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 1: DAS PROBLEM -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="1">
+  <div class="chapter-label">Kapitel 01 · Die Realität</div>
+  <h1>Das Web war nie nur für <em>Menschen</em></h1>
+  <p>Suchmaschinen-Crawler, Screenreader, Browser-Extensions — Maschinen lesen deine Seiten seit Jahrzehnten. AI-Agents sind die nächste Stufe: <strong>Sie klicken, füllen aus, navigieren.</strong></p>
+
+  <h2>Was AI-Agents heute können</h2>
+  <p>Ein moderner Agent (GPT-4, Claude, Gemini + Browser-Tool) kann:</p>
+  <ul>
+    <li>Websites navigieren und Inhalte lesen</li>
+    <li>Formulare ausfüllen und absenden</li>
+    <li>Produkte suchen, vergleichen und in den Warenkorb legen</li>
+    <li>Multi-Step-Aufgaben über mehrere Seiten hinweg erledigen</li>
+  </ul>
+
+  <h2>Wo sie scheitern</h2>
+  <div class="agent-log" id="demoLog">
+    <div class="step info">→ Agent: „Suche Wireless Headphones unter 150€"</div>
+    <div class="step ok">✓ Suchfeld gefunden (input[type=search])</div>
+    <div class="step ok">✓ Suchanfrage eingegeben</div>
+    <div class="step warn">⚠ 12 Produkte gefunden, aber kein Preis im HTML — nur als Bild gerendert</div>
+    <div class="step fail">✗ Filter „Unter 150€" — Custom-Dropdown ohne ARIA, nicht bedienbar</div>
+    <div class="step fail">✗ „In den Warenkorb" — div mit onclick, kein button, kein role</div>
+    <div class="step fail">✗ Aufgabe gescheitert nach 4 Versuchen</div>
+  </div>
+
+  <div class="callout warn">
+    <p>⚠️ <strong>Das Paradox:</strong> Die gleichen Probleme, die AI-Agents stoppen, machen auch das Erlebnis für Menschen mit Assistive Technology unmöglich.</p>
+  </div>
+
+  <h2>Schnell-Check: Wie agent-freundlich ist deine Seite?</h2>
+  <div class="quiz" id="quiz1">
+    <div class="quiz-q">Ein AI-Agent soll den Preis eines Produkts auslesen. Welche Variante funktioniert am zuverlässigsten?</div>
+    <div class="quiz-options">
+      <div class="quiz-opt" data-correct="false" onclick="checkQuiz(this, 'quiz1')">
+        <div class="marker">A</div>
+        <div><code>&lt;span class="price-big red"&gt;149€&lt;/span&gt;</code></div>
+      </div>
+      <div class="quiz-opt" data-correct="false" onclick="checkQuiz(this, 'quiz1')">
+        <div class="marker">B</div>
+        <div>Preis als SVG-Grafik mit Alt-Text „149€"</div>
+      </div>
+      <div class="quiz-opt" data-correct="true" onclick="checkQuiz(this, 'quiz1')">
+        <div class="marker">C</div>
+        <div>JSON-LD mit <code>schema:price = "149.00"</code> + sichtbarer Text</div>
+      </div>
+      <div class="quiz-opt" data-correct="false" onclick="checkQuiz(this, 'quiz1')">
+        <div class="marker">D</div>
+        <div>JavaScript-Variable <code>window.productPrice = 149</code></div>
+      </div>
+    </div>
+    <div class="quiz-explain right" id="quiz1-right">✅ Richtig! JSON-LD ist maschinenlesbar, standardisiert und unabhängig vom visuellen Layout.</div>
+    <div class="quiz-explain wrong-expl" id="quiz1-wrong">❌ Nicht ganz. Variante C (JSON-LD + sichtbarer Text) ist am robustesten — standardisiert, maschinenlesbar, layout-unabhängig.</div>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Semantisches HTML →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 2: SEMANTISCHES HTML -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="2">
+  <div class="chapter-label">Ebene 01 · Semantisches HTML</div>
+  <h1>Das <em>Fundament</em> für Mensch und Maschine</h1>
+  <p>Semantisches HTML gibt deiner Seite Bedeutung. Nicht nur Aussehen — <strong>Struktur</strong>. Ein Agent, der eine Seite liest, sieht keinen Pixel. Er sieht den DOM-Baum.</p>
+
+  <h2>Die wichtigsten semantischen Elemente</h2>
+  <div class="code-block">
+    <div class="label">HTML</div>
+    <code><span class="tag">&lt;header&gt;</span>      <span class="cmt">← Kopfbereich der Seite</span>
+  <span class="tag">&lt;nav&gt;</span>        <span class="cmt">← Hauptnavigation</span>
+<span class="tag">&lt;/header&gt;</span>
+
+<span class="tag">&lt;main&gt;</span>        <span class="cmt">← Hauptinhalt (nur 1x pro Seite)</span>
+  <span class="tag">&lt;article&gt;</span>   <span class="cmt">← Eigenständiger Inhalt</span>
+  <span class="tag">&lt;section&gt;</span>   <span class="cmt">← Thematischer Abschnitt</span>
+  <span class="tag">&lt;aside&gt;</span>     <span class="cmt">← Ergänzende Info (Sidebar)</span>
+<span class="tag">&lt;/main&gt;</span>
+
+<span class="tag">&lt;footer&gt;</span>       <span class="cmt">← Fußbereich</span></code>
+  </div>
+
+  <h2>Warum es für Agents entscheidend ist</h2>
+  <p>Ein Agent, der eine Produktseite analysiert, braucht Antworten auf:</p>
+  <ul>
+    <li><strong>Wo ist die Navigation?</strong> → <code>&lt;nav&gt;</code></li>
+    <li><strong>Wo ist der Hauptinhalt?</strong> → <code>&lt;main&gt;</code></li>
+    <li><strong>Was ist ein Button?</strong> → <code>&lt;button&gt;</code>, nicht <code>&lt;div onclick&gt;</code></li>
+    <li><strong>Was ist eine Überschrift?</strong> → <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code> in Hierarchie</li>
+  </ul>
+
+  <h2>Vorher / Nachher</h2>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Div-Suppe</div>
+      <pre>&lt;div class="header"&gt;
+  &lt;div class="nav"&gt;
+    &lt;div class="nav-item" onclick="go('/')"&gt;Home&lt;/div&gt;
+    &lt;div class="nav-item" onclick="go('/shop')"&gt;Shop&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="content"&gt;
+  &lt;div class="title"&gt;Produkt XY&lt;/div&gt;
+  &lt;div class="btn" onclick="buy()"&gt;Kaufen&lt;/div&gt;
+&lt;/div&gt;</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Semantisch</div>
+      <pre>&lt;header&gt;
+  &lt;nav aria-label="Hauptnavigation"&gt;
+    &lt;a href="/"&gt;Home&lt;/a&gt;
+    &lt;a href="/shop"&gt;Shop&lt;/a&gt;
+  &lt;/nav&gt;
+&lt;/header&gt;
+&lt;main&gt;
+  &lt;h1&gt;Produkt XY&lt;/h1&gt;
+  &lt;button type="button"
+    aria-label="Produkt XY kaufen"&gt;
+    Kaufen
+  &lt;/button&gt;
+&lt;/main&gt;</pre>
+    </div>
+  </div>
+
+  <h3>ARIA: Wenn HTML nicht reicht</h3>
+  <p>Manchmal brauchst du Custom-Komponenten. Dann helfen ARIA-Attribute:</p>
+  <div class="code-block">
+    <div class="label">ARIA Basics</div>
+    <code><span class="cmt">/* Rolle explizit machen */</span>
+<span class="tag">&lt;div</span> <span class="attr">role</span>=<span class="val">"tablist"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;button</span> <span class="attr">role</span>=<span class="val">"tab"</span> <span class="attr">aria-selected</span>=<span class="val">"true"</span><span class="tag">&gt;</span>Tab 1<span class="tag">&lt;/button&gt;</span>
+  <span class="tag">&lt;button</span> <span class="attr">role</span>=<span class="val">"tab"</span> <span class="attr">aria-selected</span>=<span class="val">"false"</span><span class="tag">&gt;</span>Tab 2<span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/div&gt;</span>
+
+<span class="cmt">/* Zustand kommunizieren */</span>
+<span class="tag">&lt;button</span> <span class="attr">aria-expanded</span>=<span class="val">"false"</span> <span class="attr">aria-controls</span>=<span class="val">"menu"</span><span class="tag">&gt;</span>
+  Menü öffnen
+<span class="tag">&lt;/button&gt;</span></code>
+  </div>
+
+  <div class="callout success">
+    <p>✅ <strong>Regel:</strong> Benutze zuerst native HTML-Elemente. ARIA nur, wenn kein passendes Element existiert. „No ARIA is better than bad ARIA."</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Structured Data →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 3: STRUCTURED DATA -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="3">
+  <div class="chapter-label">Ebene 02 · Structured Data</div>
+  <h1>Mach das <em>Unsichtbare</em> sichtbar</h1>
+  <p>Preis, Bewertung, Verfügbarkeit, Öffnungszeiten — für Menschen sichtbar auf der Seite. Für Maschinen? Nur wenn du es <strong>explizit codierst</strong>.</p>
+
+  <h2>JSON-LD: Der Standard</h2>
+  <p>JSON-LD (JavaScript Object Notation for Linked Data) wird im <code>&lt;script&gt;</code>-Tag eingebettet und von der visuellen Darstellung komplett entkoppelt:</p>
+
+  <div class="code-block">
+    <div class="label">JSON-LD</div>
+    <code><span class="tag">&lt;script</span> <span class="attr">type</span>=<span class="val">"application/ld+json"</span><span class="tag">&gt;</span>
+{
+  <span class="attr">"@context"</span>: <span class="val">"https://schema.org"</span>,
+  <span class="attr">"@type"</span>: <span class="val">"Product"</span>,
+  <span class="attr">"name"</span>: <span class="val">"Studio Monitor Kopfhörer"</span>,
+  <span class="attr">"image"</span>: <span class="val">"https://example.com/photo.jpg"</span>,
+  <span class="attr">"description"</span>: <span class="val">"Professioneller Over-Ear Kopfhörer"</span>,
+  <span class="attr">"brand"</span>: { <span class="attr">"@type"</span>: <span class="val">"Brand"</span>, <span class="attr">"name"</span>: <span class="val">"AudioPro"</span> },
+  <span class="attr">"offers"</span>: {
+    <span class="attr">"@type"</span>: <span class="val">"Offer"</span>,
+    <span class="attr">"price"</span>: <span class="val">"249.00"</span>,
+    <span class="attr">"priceCurrency"</span>: <span class="val">"EUR"</span>,
+    <span class="attr">"availability"</span>: <span class="val">"https://schema.org/InStock"</span>,
+    <span class="attr">"seller"</span>: { <span class="attr">"@type"</span>: <span class="val">"Organization"</span>, <span class="attr">"name"</span>: <span class="val">"MusicStore"</span> }
+  },
+  <span class="attr">"aggregateRating"</span>: {
+    <span class="attr">"@type"</span>: <span class="val">"AggregateRating"</span>,
+    <span class="attr">"ratingValue"</span>: <span class="val">"4.7"</span>,
+    <span class="attr">"reviewCount"</span>: <span class="val">"328"</span>
+  }
+}
+<span class="tag">&lt;/script&gt;</span></code>
+  </div>
+
+  <h2>Die wichtigsten Schema-Typen</h2>
+  <ul>
+    <li><strong>Product</strong> — Preis, Verfügbarkeit, Bewertung, Marke</li>
+    <li><strong>LocalBusiness</strong> — Adresse, Öffnungszeiten, Kontakt</li>
+    <li><strong>Article / BlogPosting</strong> — Autor, Datum, Kategorie</li>
+    <li><strong>Event</strong> — Datum, Ort, Tickets</li>
+    <li><strong>FAQPage</strong> — Frage-Antwort-Paare</li>
+    <li><strong>BreadcrumbList</strong> — Seitenstruktur / Navigation</li>
+  </ul>
+
+  <h2>Warum Agents Structured Data lieben</h2>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Ohne Structured Data</div>
+      <pre>Agent muss:
+1. HTML parsen
+2. „249 €" im Text finden
+3. Raten, ob das der Preis ist
+4. Währung aus Kontext ableiten
+5. Verfügbarkeit aus Farbe erraten
+   (grün = verfügbar?)</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Mit JSON-LD</div>
+      <pre>Agent liest direkt:
+→ price: 249.00
+→ currency: EUR
+→ availability: InStock
+→ rating: 4.7/5
+→ reviews: 328
+
+Kein Raten. Kein Parsen.
+Strukturierte Fakten.</pre>
+    </div>
+  </div>
+
+  <div class="callout">
+    <p>💡 <strong>Bonus:</strong> Structured Data verbessert auch dein Google-Ranking (Rich Snippets, Knowledge Panels). Doppelter Gewinn.</p>
+  </div>
+
+  <h3>Open Graph & Meta Tags</h3>
+  <p>Für Social Sharing und Link-Previews — auch Agents nutzen diese Metadaten:</p>
+  <div class="code-block">
+    <div class="label">META</div>
+    <code><span class="tag">&lt;meta</span> <span class="attr">property</span>=<span class="val">"og:title"</span> <span class="attr">content</span>=<span class="val">"Studio Monitor Kopfhörer"</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">property</span>=<span class="val">"og:description"</span> <span class="attr">content</span>=<span class="val">"Professioneller Over-Ear Kopfhörer — 249€"</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">property</span>=<span class="val">"og:type"</span> <span class="attr">content</span>=<span class="val">"product"</span> <span class="tag">/&gt;</span>
+<span class="tag">&lt;meta</span> <span class="attr">property</span>=<span class="val">"og:image"</span> <span class="attr">content</span>=<span class="val">"https://example.com/photo.jpg"</span> <span class="tag">/&gt;</span></code>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: API-Design →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 4: API DESIGN -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="4">
+  <div class="chapter-label">Ebene 03 · API-Design</div>
+  <h1><em>APIs</em> sind die besseren Interfaces</h1>
+  <p>Wenn ein Agent nicht durch die UI muss, bricht nichts. APIs sind die stabilste Brücke zwischen Mensch (über UI) und Maschine (direkt).</p>
+
+  <h2>Warum Designer sich für APIs interessieren sollten</h2>
+  <p>APIs sind kein reines Entwickler-Thema. Als Designer entscheidest du:</p>
+  <ul>
+    <li><strong>Welche Daten öffentlich sind</strong> — Was soll ein Agent lesen können?</li>
+    <li><strong>Welche Aktionen erlaubt sind</strong> — Suche? Filter? Warenkorb?</li>
+    <li><strong>Wie die Interaktion fließt</strong> — Ein API-Aufruf oder fünf Klicks?</li>
+  </ul>
+
+  <h2>Good API vs. Scraping</h2>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Agent muss scrapen</div>
+      <pre>1. Seite laden (2s)
+2. JavaScript abwarten (3s)
+3. DOM durchsuchen
+4. „Preis"-Element raten
+5. Nächste Seite? Pagination-Link suchen
+6. Layout ändert sich → alles kaputt</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Agent nutzt API</div>
+      <pre>GET /api/products?q=kopfhörer&max_price=200
+
+→ 200 OK
+→ Strukturierte JSON-Antwort
+→ Pagination eingebaut
+→ Filter dokumentiert
+→ Stabil über Layout-Changes</pre>
+    </div>
+  </div>
+
+  <h2>Design-Prinzipien für agent-freundliche APIs</h2>
+
+  <h3>1. Konsistente Benennung</h3>
+  <div class="code-block">
+    <div class="label">REST</div>
+    <code><span class="cmt"># Gut: vorhersagbar, konsistent</span>
+GET  /api/products
+GET  /api/products/{id}
+GET  /api/products/{id}/reviews
+POST /api/cart/items
+
+<span class="cmt"># Schlecht: unvorhersagbar</span>
+GET  /api/getProductList
+GET  /api/fetchSingleProd?pid=123
+POST /api/doAddToBasket</code>
+  </div>
+
+  <h3>2. Selbstbeschreibende Antworten</h3>
+  <div class="code-block">
+    <div class="label">JSON Response</div>
+    <code>{
+  <span class="attr">"data"</span>: [...],
+  <span class="attr">"pagination"</span>: {
+    <span class="attr">"page"</span>: <span class="val">1</span>,
+    <span class="attr">"totalPages"</span>: <span class="val">12</span>,
+    <span class="attr">"next"</span>: <span class="val">"/api/products?page=2"</span>
+  },
+  <span class="attr">"filters"</span>: {
+    <span class="attr">"applied"</span>: [<span class="val">"max_price=200"</span>],
+    <span class="attr">"available"</span>: [<span class="val">"category"</span>, <span class="val">"brand"</span>, <span class="val">"rating"</span>]
+  }
+}</code>
+  </div>
+
+  <h3>3. OpenAPI / Swagger Spec</h3>
+  <p>Eine maschinenlesbare API-Dokumentation, die Agents automatisch verstehen können:</p>
+  <div class="code-block">
+    <div class="label">OpenAPI 3.0</div>
+    <code><span class="attr">paths</span>:
+  <span class="attr">/api/products</span>:
+    <span class="attr">get</span>:
+      <span class="attr">summary</span>: <span class="val">Produkte suchen und filtern</span>
+      <span class="attr">parameters</span>:
+        - <span class="attr">name</span>: <span class="val">q</span>
+          <span class="attr">in</span>: <span class="val">query</span>
+          <span class="attr">description</span>: <span class="val">Suchbegriff</span>
+        - <span class="attr">name</span>: <span class="val">max_price</span>
+          <span class="attr">in</span>: <span class="val">query</span>
+          <span class="attr">description</span>: <span class="val">Maximaler Preis in EUR</span></code>
+  </div>
+
+  <div class="callout">
+    <p>💡 <strong>Design-Tipp:</strong> Wenn du einen neuen Feature-Flow designst, frag dich immer: „Könnte ein Agent das auch ohne UI erledigen?" Wenn nein, fehlt wahrscheinlich eine API.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Form-Struktur →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 5: FORM STRUKTUR -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="5">
+  <div class="chapter-label">Ebene 04 · Form-Struktur</div>
+  <h1>Formulare: Der <em>härteste</em> Test</h1>
+  <p>Formulare sind der Punkt, an dem die meisten AI-Agents scheitern. Gleichzeitig sind sie der wichtigste Conversion-Moment — für Menschen wie für Maschinen.</p>
+
+  <h2>Die 6 Regeln agent-freundlicher Formulare</h2>
+
+  <h3>1. Label + Input = untrennbar</h3>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Broken</div>
+      <pre>&lt;span&gt;Email&lt;/span&gt;
+&lt;input type="text" class="inp"&gt;</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Verbunden</div>
+      <pre>&lt;label for="email"&gt;E-Mail&lt;/label&gt;
+&lt;input type="email" id="email"
+       name="email"&gt;</pre>
+    </div>
+  </div>
+
+  <h3>2. Richtige Input-Typen</h3>
+  <div class="code-block">
+    <div class="label">Input Types</div>
+    <code><span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"email"</span><span class="tag">&gt;</span>      <span class="cmt">← Validierung + Keyboard</span>
+<span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"tel"</span><span class="tag">&gt;</span>        <span class="cmt">← Telefon-Keyboard</span>
+<span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"url"</span><span class="tag">&gt;</span>        <span class="cmt">← URL-Validierung</span>
+<span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"date"</span><span class="tag">&gt;</span>       <span class="cmt">← Nativer Datepicker</span>
+<span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"number"</span><span class="tag">&gt;</span>     <span class="cmt">← Nur Zahlen</span>
+<span class="tag">&lt;select&gt;</span>                <span class="cmt">← Native Dropdowns &gt; Custom</span>
+<span class="tag">&lt;textarea&gt;</span>              <span class="cmt">← Mehrzeiliger Text</span></code>
+  </div>
+
+  <h3>3. Autocomplete-Attribute</h3>
+  <p>Browser und Agents nutzen <code>autocomplete</code>, um Felder automatisch zu füllen:</p>
+  <div class="code-block">
+    <div class="label">Autocomplete</div>
+    <code><span class="tag">&lt;input</span> <span class="attr">autocomplete</span>=<span class="val">"given-name"</span><span class="tag">&gt;</span>     <span class="cmt">← Vorname</span>
+<span class="tag">&lt;input</span> <span class="attr">autocomplete</span>=<span class="val">"family-name"</span><span class="tag">&gt;</span>    <span class="cmt">← Nachname</span>
+<span class="tag">&lt;input</span> <span class="attr">autocomplete</span>=<span class="val">"email"</span><span class="tag">&gt;</span>          <span class="cmt">← E-Mail</span>
+<span class="tag">&lt;input</span> <span class="attr">autocomplete</span>=<span class="val">"street-address"</span><span class="tag">&gt;</span> <span class="cmt">← Straße</span>
+<span class="tag">&lt;input</span> <span class="attr">autocomplete</span>=<span class="val">"postal-code"</span><span class="tag">&gt;</span>   <span class="cmt">← PLZ</span>
+<span class="tag">&lt;input</span> <span class="attr">autocomplete</span>=<span class="val">"cc-number"</span><span class="tag">&gt;</span>     <span class="cmt">← Kreditkarte</span></code>
+  </div>
+
+  <h3>4. Klare Fehlermeldungen</h3>
+  <div class="code-block">
+    <div class="label">Error Handling</div>
+    <code><span class="tag">&lt;input</span> <span class="attr">type</span>=<span class="val">"email"</span> <span class="attr">id</span>=<span class="val">"email"</span>
+  <span class="attr">required</span>
+  <span class="attr">aria-describedby</span>=<span class="val">"email-error"</span>
+  <span class="attr">aria-invalid</span>=<span class="val">"true"</span><span class="tag">&gt;</span>
+
+<span class="tag">&lt;div</span> <span class="attr">id</span>=<span class="val">"email-error"</span> <span class="attr">role</span>=<span class="val">"alert"</span><span class="tag">&gt;</span>
+  Bitte gib eine gültige E-Mail-Adresse ein.
+<span class="tag">&lt;/div&gt;</span></code>
+  </div>
+
+  <h3>5. Vorhersagbarer Ablauf</h3>
+  <p>Multi-Step-Formulare sollten ihren Fortschritt kommunizieren:</p>
+  <div class="code-block">
+    <div class="label">Progress</div>
+    <code><span class="tag">&lt;nav</span> <span class="attr">aria-label</span>=<span class="val">"Checkout-Fortschritt"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;ol&gt;</span>
+    <span class="tag">&lt;li</span> <span class="attr">aria-current</span>=<span class="val">"step"</span><span class="tag">&gt;</span>1. Adresse<span class="tag">&lt;/li&gt;</span>
+    <span class="tag">&lt;li&gt;</span>2. Zahlung<span class="tag">&lt;/li&gt;</span>
+    <span class="tag">&lt;li&gt;</span>3. Bestätigung<span class="tag">&lt;/li&gt;</span>
+  <span class="tag">&lt;/ol&gt;</span>
+<span class="tag">&lt;/nav&gt;</span></code>
+  </div>
+
+  <h3>6. Native > Custom</h3>
+  <div class="callout warn">
+    <p>⚠️ <strong>Custom-Dropdowns, Custom-Datepicker, Custom-Checkboxen</strong> — jedes davon ist ein potentieller Fail für Agents. Nutze native Elemente, wann immer möglich. Wenn Custom nötig: ARIA-Rollen korrekt setzen.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Content Readability →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 6: CONTENT READABILITY -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="6">
+  <div class="chapter-label">Ebene 05 · Content Readability</div>
+  <h1>Klartext für <em>alle</em></h1>
+  <p>Die oberste Ebene: Inhalte, die sowohl Menschen als auch Maschinen verstehen — ohne versteckte Bedeutungen in Farbe, Icons oder Layout.</p>
+
+  <h2>Die Prinzipien</h2>
+
+  <h3>1. Informationen nicht nur visuell codieren</h3>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Nur visuell</div>
+      <pre>Verfügbarkeit: 🟢
+Preis: in roter Schrift = Sale
+Pflichtfeld: * (ohne Erklärung)</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Explizit</div>
+      <pre>Verfügbarkeit: Auf Lager
+Preis: 149€ (reduziert von 199€)
+Pflichtfeld: (Pflichtfeld)</pre>
+    </div>
+  </div>
+
+  <h3>2. Konsistente Terminologie</h3>
+  <p>Wenn du es einmal „Warenkorb" nennst, nenne es nicht auf der nächsten Seite „Einkaufswagen" und im Footer „Basket". Konsistenz hilft Agents <strong>und</strong> Menschen.</p>
+
+  <h3>3. Alt-Texte, die beschreiben statt dekorieren</h3>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">❌ Nutzlos</div>
+      <pre>&lt;img alt="Bild"&gt;
+&lt;img alt="photo_2024_final_v3.jpg"&gt;
+&lt;img alt=""&gt;  ← bei Produktbild</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">✅ Beschreibend</div>
+      <pre>&lt;img alt="Schwarzer Over-Ear Kopfhörer
+  von vorne, auf weißem Hintergrund"&gt;
+
+&lt;img alt="" role="presentation"&gt;
+  ← nur bei rein dekorativen Bildern</pre>
+    </div>
+  </div>
+
+  <h3>4. Logische Informationshierarchie</h3>
+  <p>Heading-Levels als Outline deiner Seite — nicht als Styling-Tool:</p>
+  <div class="code-block">
+    <div class="label">Heading Hierarchy</div>
+    <code><span class="tag">h1</span> Studio Monitor Kopfhörer           <span class="cmt">← 1x pro Seite</span>
+  <span class="tag">h2</span> Produktdetails
+    <span class="tag">h3</span> Technische Daten
+    <span class="tag">h3</span> Lieferumfang
+  <span class="tag">h2</span> Kundenbewertungen
+    <span class="tag">h3</span> Beste Bewertung
+    <span class="tag">h3</span> Kritischste Bewertung
+  <span class="tag">h2</span> Ähnliche Produkte</code>
+  </div>
+
+  <h3>5. Progressive Disclosure</h3>
+  <p>Nicht alles auf einmal. Wichtiges zuerst, Details auf Anfrage — aber <strong>zugänglich</strong>:</p>
+  <div class="code-block">
+    <div class="label">Details/Summary</div>
+    <code><span class="tag">&lt;details&gt;</span>
+  <span class="tag">&lt;summary&gt;</span>Technische Daten anzeigen<span class="tag">&lt;/summary&gt;</span>
+  <span class="tag">&lt;table&gt;</span>
+    <span class="tag">&lt;tr&gt;&lt;th&gt;</span>Gewicht<span class="tag">&lt;/th&gt;&lt;td&gt;</span>280g<span class="tag">&lt;/td&gt;&lt;/tr&gt;</span>
+    <span class="tag">&lt;tr&gt;&lt;th&gt;</span>Frequenz<span class="tag">&lt;/th&gt;&lt;td&gt;</span>20Hz–20kHz<span class="tag">&lt;/td&gt;&lt;/tr&gt;</span>
+  <span class="tag">&lt;/table&gt;</span>
+<span class="tag">&lt;/details&gt;</span></code>
+  </div>
+
+  <div class="callout success">
+    <p>✅ <strong>Zusammenfassung:</strong> Jede Information, die nur über Farbe, Position oder Icon kommuniziert wird, ist für Agents (und viele Menschen) unsichtbar. Text > Visuell.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Hands-on Übung →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 7: HANDS-ON REFACTORING -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="7">
+  <div class="chapter-label">Hands-on · Übung</div>
+  <h1>Refactoring: Von <em>Div-Suppe</em> zu Semantik</h1>
+  <p>Zeit zum Coden. Unten siehst du eine typische „Div-Suppe"-Produktkarte. Deine Aufgabe: <strong>Refactore sie zu semantischem, agent-freundlichem HTML.</strong></p>
+
+  <div class="callout">
+    <p>💡 Bearbeite den Code links — die Vorschau rechts aktualisiert sich live. Ziel: Benutze semantische Elemente, füge ARIA-Labels hinzu, und mach die Daten maschinenlesbar.</p>
+  </div>
+
+  <div class="editor-wrap">
+    <div class="editor-toolbar">
+      <span>Live Editor</span>
+      <button class="btn-reset" onclick="resetEditor()">Reset</button>
+      <button onclick="updatePreview()">▶ Vorschau</button>
+    </div>
+    <div class="editor-area">
+      <textarea id="codeEditor" spellcheck="false" oninput="updatePreview()"><!-- Refactore diesen Code! -->
+<div class="card">
+  <div class="img-wrap">
+    <img src="https://picsum.photos/300/200?random=5">
+  </div>
+  <div class="title">Studio Monitor Kopfhörer</div>
+  <div class="stars">★★★★☆</div>
+  <div class="price-old">299 €</div>
+  <div class="price">249 €</div>
+  <div class="stock green">Auf Lager</div>
+  <div class="btn" onclick="addToCart(123)">
+    In den Warenkorb
+  </div>
+</div>
+
+<style>
+  .card { font-family: sans-serif; max-width: 300px; border: 1px solid #ddd; border-radius: 12px; overflow: hidden; }
+  .card img { width: 100%; display: block; }
+  .title { font-size: 1.1rem; font-weight: bold; padding: .75rem 1rem 0; }
+  .stars { padding: 0 1rem; color: #f59e0b; }
+  .price-old { padding: 0 1rem; text-decoration: line-through; color: #999; font-size: .85rem; }
+  .price { padding: 0 1rem; font-size: 1.3rem; font-weight: bold; }
+  .stock { padding: .25rem 1rem; font-size: .85rem; }
+  .green { color: #22c55e; }
+  .btn { margin: 1rem; padding: .75rem; text-align: center; background: #0057ff; color: white; border-radius: 8px; cursor: pointer; font-weight: 600; }
+</style></textarea>
+      <div class="preview">
+        <iframe id="previewFrame" sandbox="allow-same-origin" title="Vorschau"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <button class="reveal-trigger" onclick="toggleReveal('solution1')">↓ Musterlösung anzeigen</button>
+  <div class="reveal-content" id="solution1">
+    <div class="code-block">
+      <div class="label">Lösung</div>
+      <code><span class="tag">&lt;article</span> <span class="attr">itemscope itemtype</span>=<span class="val">"https://schema.org/Product"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;img</span> <span class="attr">src</span>=<span class="val">"photo.jpg"</span>
+    <span class="attr">alt</span>=<span class="val">"Schwarzer Over-Ear Kopfhörer, Seitenansicht"</span>
+    <span class="attr">itemprop</span>=<span class="val">"image"</span><span class="tag">&gt;</span>
+
+  <span class="tag">&lt;h2</span> <span class="attr">itemprop</span>=<span class="val">"name"</span><span class="tag">&gt;</span>Studio Monitor Kopfhörer<span class="tag">&lt;/h2&gt;</span>
+
+  <span class="tag">&lt;div</span> <span class="attr">itemprop</span>=<span class="val">"aggregateRating"</span>
+    <span class="attr">itemscope itemtype</span>=<span class="val">"https://schema.org/AggregateRating"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;span</span> <span class="attr">aria-label</span>=<span class="val">"4 von 5 Sternen"</span><span class="tag">&gt;</span>★★★★☆<span class="tag">&lt;/span&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">itemprop</span>=<span class="val">"ratingValue"</span> <span class="attr">content</span>=<span class="val">"4"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+
+  <span class="tag">&lt;div</span> <span class="attr">itemprop</span>=<span class="val">"offers"</span>
+    <span class="attr">itemscope itemtype</span>=<span class="val">"https://schema.org/Offer"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;s</span> <span class="attr">aria-label</span>=<span class="val">"Alter Preis"</span><span class="tag">&gt;</span>299 €<span class="tag">&lt;/s&gt;</span>
+    <span class="tag">&lt;strong</span> <span class="attr">itemprop</span>=<span class="val">"price"</span> <span class="attr">content</span>=<span class="val">"249.00"</span><span class="tag">&gt;</span>
+      249 €
+    <span class="tag">&lt;/strong&gt;</span>
+    <span class="tag">&lt;meta</span> <span class="attr">itemprop</span>=<span class="val">"priceCurrency"</span> <span class="attr">content</span>=<span class="val">"EUR"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;link</span> <span class="attr">itemprop</span>=<span class="val">"availability"</span>
+      <span class="attr">href</span>=<span class="val">"https://schema.org/InStock"</span><span class="tag">&gt;</span>
+    <span class="tag">&lt;p&gt;</span>Auf Lager<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;/div&gt;</span>
+
+  <span class="tag">&lt;button</span> <span class="attr">type</span>=<span class="val">"button"</span>
+    <span class="attr">aria-label</span>=<span class="val">"Studio Monitor Kopfhörer in den Warenkorb"</span><span class="tag">&gt;</span>
+    In den Warenkorb
+  <span class="tag">&lt;/button&gt;</span>
+<span class="tag">&lt;/article&gt;</span></code>
+    </div>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Agent-Audit →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 8: AGENT AUDIT -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="8">
+  <div class="chapter-label">Hands-on · Agent-Audit</div>
+  <h1>Lass den <em>Agent</em> testen</h1>
+  <p>Der ultimative Test: Ein AI-Agent versucht, eine echte Aufgabe auf einer Website durchzuführen. Wo er scheitert, haben oft auch Menschen Probleme.</p>
+
+  <div class="audit-task">
+    <h3>🎯 Audit-Aufgabe</h3>
+    <p>Wählt eine echte Website (euer eigenes Produkt oder eine bekannte Seite). Lasst einen AI-Agent <strong>drei Aufgaben</strong> durchführen:</p>
+    <ol class="steps">
+      <li><strong>Produktsuche:</strong> „Finde einen kabellosen Kopfhörer unter 200€ mit mindestens 4 Sternen"</li>
+      <li><strong>Formular:</strong> „Erstelle ein Kundenkonto mit diesen Testdaten: …"</li>
+      <li><strong>Checkout:</strong> „Lege das Produkt in den Warenkorb und gehe bis zur Zahlungsseite"</li>
+    </ol>
+  </div>
+
+  <h2>So führt ihr den Audit durch</h2>
+
+  <h3>Schritt 1: Agent-Tool wählen</h3>
+  <ul>
+    <li><strong>ChatGPT mit Browse-Modus</strong> — am einfachsten für Anfänger</li>
+    <li><strong>Claude mit Computer Use</strong> — detailliertes Feedback</li>
+    <li><strong>Playwright + LLM</strong> — für technischere Teams</li>
+  </ul>
+
+  <h3>Schritt 2: Aufgabe formulieren</h3>
+  <p>Gebt dem Agent eine <strong>klare, spezifische Aufgabe</strong> — wie ein echter Nutzer sie hätte:</p>
+  <div class="code-block">
+    <div class="label">Prompt</div>
+    <code><span class="val">"Gehe auf [URL]. Suche nach kabellosen Kopfhörern.
+Filtere nach: Preis unter 200€, Bewertung mindestens 4 Sterne.
+Wähle das erste passende Produkt aus.
+Lege es in den Warenkorb.
+Gehe zum Checkout.
+Dokumentiere jeden Schritt und wo du Probleme hattest."</span></code>
+  </div>
+
+  <h3>Schritt 3: Dokumentieren</h3>
+  <p>Für jeden Schritt notiert ihr:</p>
+
+  <div class="agent-log">
+    <div class="step info">→ Schritt: [Was der Agent versucht hat]</div>
+    <div class="step ok">✓ Erfolg: [Was funktioniert hat und warum]</div>
+    <div class="step fail">✗ Fehler: [Was nicht funktioniert hat]</div>
+    <div class="step warn">⚠ Ursache: [Welche Ebene betroffen ist: Semantik / Data / API / Form / Content]</div>
+  </div>
+
+  <h2>Typische Findings</h2>
+  <div class="comparison">
+    <div class="comp-col bad">
+      <div class="comp-col-header">🔴 Häufige Probleme</div>
+      <pre>• Suchfeld nicht als input[type=search] erkennbar
+• Filter nur als Custom-Slider (kein nativer Input)
+• Preise als Bild oder SVG
+• "In den Warenkorb" ist ein div, kein button
+• Cookie-Banner blockiert Interaktion
+• Captcha ohne Alternative
+• Infinite Scroll ohne Pagination</pre>
+    </div>
+    <div class="comp-col good">
+      <div class="comp-col-header">🟢 Best Practices</div>
+      <pre>• Semantische Landmarks (nav, main, footer)
+• JSON-LD für Produktdaten
+• Native form elements
+• Skip-Links für Navigation
+• Klare Fehlermeldungen mit aria-live
+• API-Endpunkte für Suche/Filter
+• Pagination mit rel="next/prev"</pre>
+    </div>
+  </div>
+
+  <div class="callout success">
+    <p>✅ <strong>Key Insight:</strong> Ein Agent-Audit deckt in 10 Minuten Probleme auf, die in klassischen Usability-Tests Wochen brauchen. Und die Fixes helfen <em>allen</em> Nutzern.</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Scorecard →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 9: SCORECARD -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="9">
+  <div class="chapter-label">Hands-on · Bewertung</div>
+  <h1>Agent-Friendliness <em>Scorecard</em></h1>
+  <p>Bewerte die auditierte Website auf jeder der fünf Ebenen. Die Scorecard gibt euch ein klares Bild, wo die größten Lücken sind.</p>
+
+  <div class="score-card">
+    <div class="score-item">
+      <div class="score-icon">🏗</div>
+      <div class="score-label">Semantik</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="score-item">
+      <div class="score-icon">📊</div>
+      <div class="score-label">Structured Data</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="score-item">
+      <div class="score-icon">🔌</div>
+      <div class="score-label">API</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="score-item">
+      <div class="score-icon">📝</div>
+      <div class="score-label">Formulare</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+    <div class="score-item">
+      <div class="score-icon">👁</div>
+      <div class="score-label">Content</div>
+      <select onchange="updateTotal()"><option>—</option><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select>
+    </div>
+  </div>
+
+  <div style="text-align:center; margin: 1.5rem 0;">
+    <div style="font-size:.85rem; color:var(--muted); margin-bottom:.25rem;">Gesamtscore</div>
+    <div id="totalScore" style="font-size:3rem; font-weight:800; font-family:var(--mono); background:linear-gradient(135deg,var(--accent),var(--purple)); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">— / 25</div>
+  </div>
+
+  <h2>Score-Guide</h2>
+  <ul>
+    <li><strong>1 — Kritisch:</strong> Agent scheitert komplett, fundamentale Probleme</li>
+    <li><strong>2 — Schwach:</strong> Agent schafft es manchmal, aber unzuverlässig</li>
+    <li><strong>3 — Okay:</strong> Grundlagen vorhanden, aber Lücken</li>
+    <li><strong>4 — Gut:</strong> Agent kommt durch, kleine Verbesserungen möglich</li>
+    <li><strong>5 — Exzellent:</strong> Agent-freundlich, strukturiert, robust</li>
+  </ul>
+
+  <h2>Priorisierung: Was zuerst fixen?</h2>
+  <div class="callout">
+    <p>💡 <strong>Impact-Matrix:</strong> Ebenen mit Score 1–2 zuerst angehen. Innerhalb gleichwertiger Scores: Semantik > Forms > Content > Data > API (weil Semantik die Grundlage für alles andere ist).</p>
+  </div>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zurück</button>
+    <button class="primary" onclick="next()">Weiter: Takeaways →</button>
+  </div>
+</div>
+
+<!-- ======================================================= -->
+<!-- CHAPTER 10: CHECKLISTE & TAKEAWAYS -->
+<!-- ======================================================= -->
+<div class="chapter" data-index="10">
+  <div class="chapter-label">Abschluss</div>
+  <h1>Deine <em>Checkliste</em> für jedes Projekt</h1>
+  <p>Nimm diese Checkliste mit. Geh sie bei jedem Design-Review durch — sie macht dein Produkt besser für alle.</p>
+
+  <h2>Agent-Friendly Design Checkliste</h2>
+  <div class="checklist" id="mainChecklist">
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Semantische HTML-Elemente statt Div-Suppe (header, nav, main, button, …)
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Heading-Hierarchie (h1→h6) bildet eine logische Outline
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> ARIA-Labels auf interaktiven Elementen (Buttons, Links, Inputs)
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> JSON-LD / Structured Data für Kernentitäten (Produkt, Event, FAQ, …)
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Open Graph Meta-Tags für Link-Previews
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> API-Endpunkte für alle Kern-Interaktionen (Suche, Filter, CRUD)
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> OpenAPI-Spec vorhanden und aktuell
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Labels explizit mit Inputs verbunden (for/id)
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Richtige Input-Typen (email, tel, date, number, …)
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Autocomplete-Attribute auf Formularfeldern
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Fehlermeldungen mit aria-describedby und role="alert"
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Native Elemente bevorzugt (select statt Custom-Dropdown)
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Keine Information nur über Farbe/Icons codiert
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Alt-Texte auf allen inhaltlichen Bildern
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Konsistente Terminologie über alle Seiten hinweg
+    </label>
+    <label class="checklist-item" onclick="toggleCheck(this)">
+      <input type="checkbox"> Agent-Audit mit mindestens einem realen Task durchgeführt
+    </label>
+  </div>
+
+  <h2>Die Kernlektion</h2>
+  <div class="callout success" style="font-size:1.1rem;">
+    <p>✅ <strong>Was für AI-Agents funktioniert, funktioniert auch besser für Menschen.</strong><br><br>
+    Semantisches HTML → Accessibility. Structured Data → SEO. Klare APIs → Performance. Gute Formulare → Conversion. Lesbarer Content → UX.<br><br>
+    Agent-freundliches Design ist kein Extra — es ist besseres Design.</p>
+  </div>
+
+  <h2>Weiterführende Ressourcen</h2>
+  <ul>
+    <li><strong>Schema.org</strong> — schema.org/docs/schemas.html</li>
+    <li><strong>WAI-ARIA Authoring Practices</strong> — w3.org/WAI/ARIA/apg</li>
+    <li><strong>OpenAPI Specification</strong> — spec.openapis.org</li>
+    <li><strong>HTML Living Standard</strong> — html.spec.whatwg.org</li>
+    <li><strong>Lighthouse Accessibility Audit</strong> — Chrome DevTools</li>
+  </ul>
+
+  <div class="spacer"></div>
+  <p style="text-align:center; font-size:1.5rem;">🎉</p>
+  <p style="text-align:center; color:var(--muted);">Masterclass abgeschlossen. Jetzt bau was, das für alle funktioniert.</p>
+
+  <div class="chapter-nav">
+    <button onclick="prev()">← Zum Anfang zurück</button>
+    <button class="primary" disabled>Fertig ✓</button>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<!-- ===== SCRIPTS ===== -->
+<script>
+const chapters = document.querySelectorAll('.chapter');
+const links = document.querySelectorAll('.sidebar-link');
+const progressBar = document.getElementById('progressBar');
+const chapterLabel = document.getElementById('chapterLabel');
+let current = 0;
+const visited = new Set([0]);
+
+function goTo(i) {
+  if (i < 0 || i >= chapters.length) return;
+  chapters[current].classList.remove('active');
+  current = i;
+  visited.add(i);
+  chapters[current].classList.add('active');
+
+  links.forEach(l => l.classList.remove('active'));
+  links[i].classList.add('active');
+  visited.forEach(v => links[v].classList.add('done'));
+
+  progressBar.style.width = ((i / (chapters.length - 1)) * 100) + '%';
+  chapterLabel.textContent = links[i].textContent.replace('✓','').trim();
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // close sidebar on mobile
+  document.querySelector('.sidebar').classList.remove('open');
+}
+
+function next() { goTo(current + 1); }
+function prev() { goTo(current - 1); }
+
+links.forEach((l, i) => l.addEventListener('click', () => goTo(i)));
+
+// Quiz
+function checkQuiz(el, qid) {
+  const opts = el.parentElement.querySelectorAll('.quiz-opt');
+  const already = el.parentElement.querySelector('.correct, .wrong');
+  if (already) return;
+
+  const correct = el.dataset.correct === 'true';
+  opts.forEach(o => {
+    if (o.dataset.correct === 'true') o.classList.add('correct');
+  });
+  if (!correct) el.classList.add('wrong');
+
+  document.getElementById(qid + (correct ? '-right' : '-wrong')).classList.add('show');
+}
+
+// Reveal
+function toggleReveal(id) {
+  document.getElementById(id).classList.toggle('open');
+}
+
+// Editor
+function updatePreview() {
+  const code = document.getElementById('codeEditor').value;
+  const frame = document.getElementById('previewFrame');
+  const doc = frame.contentDocument || frame.contentWindow.document;
+  doc.open();
+  doc.write(code);
+  doc.close();
+}
+
+const defaultCode = document.getElementById('codeEditor').value;
+function resetEditor() {
+  document.getElementById('codeEditor').value = defaultCode;
+  updatePreview();
+}
+
+// Checklist
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+}
+
+// Scorecard
+function updateTotal() {
+  const selects = document.querySelectorAll('.score-card select');
+  let total = 0, count = 0;
+  selects.forEach(s => {
+    const v = parseInt(s.value);
+    if (!isNaN(v)) { total += v; count++; }
+  });
+  document.getElementById('totalScore').textContent = (count > 0 ? total : '—') + ' / 25';
+}
+
+// Keyboard nav
+document.addEventListener('keydown', e => {
+  if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+  if (e.key === 'ArrowRight') next();
+  if (e.key === 'ArrowLeft') prev();
+});
+
+// Init preview
+setTimeout(updatePreview, 100);
+</script>
+
+</body>
+</html>
