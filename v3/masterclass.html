@@ -255,27 +255,26 @@
   <div class="sidebar-section">
     <div class="sidebar-section-label">Einführung</div>
     <a class="sidebar-link active" data-chapter="0"><span class="num">00</span> Willkommen <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="1"><span class="num">01</span> State of AI Agents <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="2"><span class="num">02</span> Neue Nutzer, neue Regeln <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="3"><span class="num">03</span> Was UX Designer bewegen <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="1"><span class="num">01</span> Neue Nutzer, neue Regeln <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="2"><span class="num">02</span> Was UX Designer bewegen <span class="check">✓</span></a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Die 5 Ebenen</div>
-    <a class="sidebar-link" data-chapter="4"><span class="num">04</span> Semantische Struktur <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="5"><span class="num">05</span> Maschinenlesbare Daten <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="6"><span class="num">06</span> API als Design-Material <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="7"><span class="num">07</span> Formulare & Flows <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="8"><span class="num">08</span> Content & Klarheit <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="3"><span class="num">03</span> Semantische Struktur <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="4"><span class="num">04</span> Maschinenlesbare Daten <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="5"><span class="num">05</span> API als Design-Material <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="6"><span class="num">06</span> Formulare & Flows <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="7"><span class="num">07</span> Content & Klarheit <span class="check">✓</span></a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Hands-on</div>
-    <a class="sidebar-link" data-chapter="9"><span class="num">09</span> Übung: UX Audit <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="10"><span class="num">10</span> Agent-Walkthrough <span class="check">✓</span></a>
-    <a class="sidebar-link" data-chapter="11"><span class="num">11</span> Scorecard <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="8"><span class="num">08</span> Übung: UX Audit <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="9"><span class="num">09</span> Agent-Walkthrough <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="10"><span class="num">10</span> Scorecard <span class="check">✓</span></a>
   </div>
   <div class="sidebar-section">
     <div class="sidebar-section-label">Abschluss</div>
-    <a class="sidebar-link" data-chapter="12"><span class="num">12</span> Checkliste & Handoff <span class="check">✓</span></a>
+    <a class="sidebar-link" data-chapter="11"><span class="num">11</span> Checkliste & Handoff <span class="check">✓</span></a>
   </div>
 </aside>
 
@@ -313,109 +312,10 @@
 </div>
 
 <!-- ======================================================= -->
-<!-- CHAPTER 1: STATE OF AI AGENTS -->
+<!-- CHAPTER 1: NEUE NUTZER -->
 <!-- ======================================================= -->
 <div class="chapter" data-index="1">
-  <div class="chapter-label">Kapitel 01 · Die Zahlen</div>
-  <h1>State of AI Agents — <em>Die Zahlen</em></h1>
-
-  <p>Bevor wir ins Design einsteigen: ein Realitätscheck. Wo stehen AI-Agents heute — und warum betrifft das dein Produkt?</p>
-
-  <h2>Die großen Player</h2>
-  <p>Stand 2025 gibt es fünf relevante Plattformen für Browser- und Computer-Agents:</p>
-  <ul>
-    <li><strong>OpenAI Operator / CUA</strong> — seit Juli 2025 als „Agent Mode" direkt in ChatGPT integriert. Nutzt Computer Use Agent (CUA) um Websites zu bedienen.</li>
-    <li><strong>Anthropic Claude Computer Use</strong> — Claude interagiert mit Screens via Screenshots + Maus/Tastatur. Seit Oktober 2024 verfügbar.</li>
-    <li><strong>Google Project Mariner / Gemini Deep Research</strong> — Agentic Browsing und Research direkt aus der Google-Welt.</li>
-    <li><strong>Browser Use</strong> — Open-Source-Framework für browser-basierte Agents. Wachsende Community.</li>
-    <li><strong>Microsoft Copilot Actions</strong> — automatisierte Workflows über Microsoft-365-Produkte hinaus ins Web.</li>
-  </ul>
-
-  <h2>Benchmark Reality Check</h2>
-  <p>Wie gut funktionieren diese Agents wirklich? Die wichtigsten Benchmarks:</p>
-
-  <div class="comparison">
-    <div class="comp-col bad">
-      <div class="comp-col-header">📊 2023 — GPT-4 Agent</div>
-      <pre>WebArena (CMU):     ~14 % Erfolg
-→ Kaum eine Aufgabe geschafft
-→ Scheitert an komplexem HTML
-→ Fragile Selektoren
-→ Kein Verständnis für Flows</pre>
-    </div>
-    <div class="comp-col good">
-      <div class="comp-col-header">📊 2025 — OpenAI CUA</div>
-      <pre>WebArena:           58,1 % Erfolg (4×)
-WebVoyager:         87 % Erfolg
-OSWorld:            38,1 % (full computer)
-→ Gut auf strukturierten Sites
-→ Scheitert noch an Div-Suppe
-→ Custom-Widgets bleiben Problem</pre>
-    </div>
-  </div>
-
-  <div class="callout">
-    <p>💡 <strong>Key Insight:</strong> In 2 Jahren von 14 % auf 58 % — eine 4-fache Verbesserung. Agents scheitern heute vor allem an schlecht strukturierten Seiten. <strong>Dein HTML entscheidet, ob du zu den 58 % gehörst oder zu den 42 %.</strong></p>
-  </div>
-
-  <h2>Der Traffic-Shift: 51 %</h2>
-  <p>Laut dem <strong>Imperva 2025 Bad Bot Report</strong> hat automatisierter Traffic erstmals den menschlichen überholt:</p>
-  <ul>
-    <li><strong>51 %</strong> des gesamten Web-Traffics ist automatisiert</li>
-    <li><strong>37 %</strong> davon sind Bad Bots (Scraper, Credential Stuffing etc.)</li>
-    <li><strong>14 %</strong> sind Good Bots (Suchmaschinen, Monitoring, AI-Agents)</li>
-    <li>Die Implikation: Deine Website <strong>wird</strong> von Agents besucht — die Frage ist nur, ob sie funktioniert</li>
-  </ul>
-
-  <h2>Industrie-Beispiele</h2>
-
-  <div class="influence-map">
-    <div class="inf-card high">
-      <div class="inf-badge">Kundenservice</div>
-      <h4>Klarna</h4>
-      <p>AI-Assistent übernahm ⅔ aller Customer-Service-Chats im ersten Monat (2024). Equivalent zu 700 Vollzeit-Agents.</p>
-    </div>
-    <div class="inf-card high">
-      <div class="inf-badge">E-Commerce</div>
-      <h4>Produktvergleich via Agent</h4>
-      <p>Agents vergleichen Preise, Verfügbarkeit und Bewertungen über mehrere Shops hinweg — in Sekunden statt Minuten.</p>
-    </div>
-    <div class="inf-card med">
-      <div class="inf-badge">Travel</div>
-      <h4>Flüge & Hotels buchen</h4>
-      <p>Agents navigieren Buchungsformulare, vergleichen Optionen und schließen Buchungen ab — wenn die Formulare es zulassen.</p>
-    </div>
-    <div class="inf-card med">
-      <div class="inf-badge">Versicherung / Finanzen</div>
-      <h4>Claims & Anträge</h4>
-      <p>Agents füllen komplexe Versicherungsformulare aus. Scheitern oft an Custom-Widgets und Multi-Step-Flows ohne klare Struktur.</p>
-    </div>
-  </div>
-
-  <h2>EU AI Act: Regulatorischer Kontext</h2>
-  <p>Der <strong>EU AI Act</strong> (in Kraft seit 2024) schafft einen neuen regulatorischen Rahmen. Relevant für UX:</p>
-  <ul>
-    <li><strong>Transparenzpflichten:</strong> AI-Systeme müssen als solche erkennbar sein</li>
-    <li><strong>Accessibility:</strong> Barrierefreiheitsanforderungen gelten zunehmend auch für AI-vermittelte Interaktionen</li>
-    <li><strong>Nicht-Diskriminierung:</strong> Wenn Agents nur auf gut-strukturierten Sites funktionieren, werden Nutzer mit AI-Assistenten auf schlecht gebauten Sites benachteiligt</li>
-    <li><strong>Implikation für Designer:</strong> Agent-freundliches Design wird von „nice-to-have" zu „compliance-relevant"</li>
-  </ul>
-
-  <div class="callout ux">
-    <p>🎯 <strong>Zusammenfassung:</strong> Agents sind nicht Science Fiction — sie sind Realität. 51 % des Traffics, 4× Benchmark-Verbesserung in 2 Jahren, Milliarden-Unternehmen setzen sie ein. Die Frage ist nicht <em>ob</em> Agents deine Website besuchen, sondern <em>ob sie funktioniert</em>.</p>
-  </div>
-
-  <div class="chapter-nav">
-    <button onclick="prev()">← Zurück</button>
-    <button class="primary" onclick="next()">Weiter: Neue Nutzer, neue Regeln →</button>
-  </div>
-</div>
-
-<!-- ======================================================= -->
-<!-- CHAPTER 2: NEUE NUTZER -->
-<!-- ======================================================= -->
-<div class="chapter" data-index="2">
-  <div class="chapter-label">Kapitel 02 · Die neue Realität</div>
+  <div class="chapter-label">Kapitel 01 · Die neue Realität</div>
   <h1>Neue Nutzer, <em>neue Regeln</em></h1>
 
   <p>Du designst Interfaces für Menschen. Ab jetzt designst du auch für deren Assistenten.</p>
@@ -470,15 +370,15 @@ Braucht: Struktur, nicht Ästhetik</pre>
 
   <div class="chapter-nav">
     <button onclick="prev()">← Zurück</button>
-    <button class="primary" onclick="next()">Weiter: Neue Nutzer, neue Regeln →</button>
+    <button class="primary" onclick="next()">Weiter: Dein Einflussbereich →</button>
   </div>
 </div>
 
 <!-- ======================================================= -->
 <!-- CHAPTER 2: EINFLUSSBEREICH -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="3">
-  <div class="chapter-label">Kapitel 03 · Dein Einflussbereich</div>
+<div class="chapter" data-index="2">
+  <div class="chapter-label">Kapitel 02 · Dein Einflussbereich</div>
   <h1>Was UX Designer <em>bewegen</em> können</h1>
 
   <p>Nicht alles in agent-freundlichem Design ist Code. Vieles entscheidest <strong>du</strong> — in Wireframes, Specs, und Design-Entscheidungen. Manches übergibst du. Wichtig ist, dass du weißt, was wo passiert.</p>
@@ -549,7 +449,7 @@ Braucht: Struktur, nicht Ästhetik</pre>
 <!-- ======================================================= -->
 <!-- CHAPTER 3: SEMANTISCHES HTML -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="4">
+<div class="chapter" data-index="3">
   <div class="chapter-label">Ebene 01 · Semantische Struktur</div>
   <h1>Struktur, die <em>Maschinen</em> lesen</h1>
 
@@ -639,7 +539,7 @@ Braucht: Struktur, nicht Ästhetik</pre>
 <!-- ======================================================= -->
 <!-- CHAPTER 4: STRUCTURED DATA -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="5">
+<div class="chapter" data-index="4">
   <div class="chapter-label">Ebene 02 · Maschinenlesbare Daten</div>
   <h1>Mach das <em>Unsichtbare</em> sichtbar</h1>
 
@@ -715,7 +615,7 @@ Braucht: Struktur, nicht Ästhetik</pre>
 <!-- ======================================================= -->
 <!-- CHAPTER 5: API DESIGN -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="6">
+<div class="chapter" data-index="5">
   <div class="chapter-label">Ebene 03 · API als Design-Material</div>
   <h1><em>APIs</em> designen, nicht nur konsumieren</h1>
 
@@ -815,7 +715,7 @@ Braucht: Struktur, nicht Ästhetik</pre>
 <!-- ======================================================= -->
 <!-- CHAPTER 6: FORMULARE -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="7">
+<div class="chapter" data-index="6">
   <div class="chapter-label">Ebene 04 · Formulare & Flows</div>
   <h1>Formulare: Dein <em>größter</em> Hebel</h1>
 
@@ -925,7 +825,7 @@ Drag & Drop Slider für Mengen
 <!-- ======================================================= -->
 <!-- CHAPTER 7: CONTENT READABILITY -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="8">
+<div class="chapter" data-index="7">
   <div class="chapter-label">Ebene 05 · Content & Klarheit</div>
   <h1>Klartext für <em>alle</em></h1>
 
@@ -1006,7 +906,7 @@ Icon ohne Label (🛒 ← Warenkorb?)</pre>
 <!-- ======================================================= -->
 <!-- CHAPTER 8: UX AUDIT -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="9">
+<div class="chapter" data-index="8">
   <div class="chapter-label">Hands-on · UX Audit</div>
   <h1>Übung: <em>Dual-Lens</em> Audit</h1>
 
@@ -1101,7 +1001,7 @@ Notizen: ...
 <!-- ======================================================= -->
 <!-- CHAPTER 9: AGENT WALKTHROUGH -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="10">
+<div class="chapter" data-index="9">
   <div class="chapter-label">Hands-on · Agent-Test</div>
   <h1>Lass den <em>Agent</em> laufen</h1>
 
@@ -1172,7 +1072,7 @@ Notizen: ...
 <!-- ======================================================= -->
 <!-- CHAPTER 10: SCORECARD -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="11">
+<div class="chapter" data-index="10">
   <div class="chapter-label">Hands-on · Bewertung</div>
   <h1>Agent-Friendliness <em>Scorecard</em></h1>
   <p>Bewerte die auditierte Website auf jeder Ebene. Achte besonders auf die Ebenen, die du als UX Designer direkt beeinflussen kannst.</p>
@@ -1232,7 +1132,7 @@ Notizen: ...
 <!-- ======================================================= -->
 <!-- CHAPTER 11: CHECKLISTE & HANDOFF -->
 <!-- ======================================================= -->
-<div class="chapter" data-index="12">
+<div class="chapter" data-index="11">
   <div class="chapter-label">Abschluss</div>
   <h1>Deine <em>Checkliste</em> für den Alltag</h1>
   <p>Nimm diese Checkliste mit. Sie ist nach deinem Einflussbereich sortiert — von „kannst du direkt ändern" bis „übergibst du im Handoff".</p>
