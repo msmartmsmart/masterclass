@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Masterclass — Version History</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+  :root { --bg: #f8f8f8; --fg: #1A1A1A; --muted: #666; --accent: #D93C00; --accent-soft: #fdf0eb; --border: #e7e8e8; --card-bg: #fff; --dark: #2B333F; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', -apple-system, sans-serif; background: var(--bg); color: var(--fg); line-height: 1.6; }
+  .container { max-width: 800px; margin: 0 auto; padding: 4rem 2rem; }
+  .logo { height: 36px; margin-bottom: 2rem; }
+  h1 { font-size: 2rem; font-weight: 700; margin-bottom: .5rem; }
+  .subtitle { color: var(--muted); margin-bottom: 3rem; }
+  .version { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 2rem; margin-bottom: 1.5rem; position: relative; overflow: hidden; }
+  .version::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--dark)); }
+  .version.current::before { background: var(--accent); height: 4px; }
+  .version-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap; }
+  .version-tag { font-size: .75rem; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; padding: .25rem .75rem; border-radius: 100px; }
+  .version-tag.current { background: var(--accent-soft); color: var(--accent); }
+  .version-tag.archived { background: #f0f1f2; color: var(--muted); }
+  .version h2 { font-size: 1.25rem; font-weight: 600; }
+  .version .date { font-size: .85rem; color: var(--muted); }
+  .version p { color: var(--muted); font-size: .95rem; margin-bottom: 1rem; }
+  .version .links { display: flex; gap: .75rem; flex-wrap: wrap; margin-bottom: 1.25rem; }
+  .version .links a { font-size: .85rem; font-weight: 600; color: var(--accent); text-decoration: none; padding: .4rem 1rem; border: 1px solid var(--accent); border-radius: 8px; transition: all .15s; }
+  .version .links a:hover { background: var(--accent); color: #fff; }
+  .prompt-toggle { font-size: .85rem; font-weight: 600; color: var(--accent); cursor: pointer; border: none; background: none; padding: .5rem 0; font-family: inherit; display: flex; align-items: center; gap: .4rem; }
+  .prompt-toggle:hover { text-decoration: underline; }
+  .prompt-box { display: none; background: #1a1a2e; color: #e0e0e0; border-radius: 8px; padding: 1.25rem; margin-top: .75rem; font-family: 'JetBrains Mono', monospace; font-size: .78rem; line-height: 1.7; white-space: pre-wrap; max-height: 400px; overflow-y: auto; }
+  .prompt-box.open { display: block; }
+  footer { text-align: center; padding: 2rem; font-size: .8rem; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <img src="https://www.mai-group.com/_assets/91371efa3afb5d4101de572cee05d1c9/Images/Logos/logo-mai-group.svg" alt="MAI Group" class="logo">
+  <h1>Version History</h1>
+  <p class="subtitle">All iterations of the "Design for LLMs and Humans" Masterclass, including the prompts used to generate them.</p>
+
+  <!-- V3 -->
+  <div class="version current">
+    <div class="version-header">
+      <span class="version-tag current">Current</span>
+      <span class="date">2026-02-14</span>
+    </div>
+    <h2>v3 — MAI Group CI</h2>
+    <p>Applied MAI Group corporate identity: DM Sans font, #D93C00 burnt orange accent, #2B333F dark tones, MAI logo in header/footer. All content unchanged from v2.</p>
+    <div class="links">
+      <a href="index.html">Landing Page</a>
+      <a href="masterclass.html">Full Masterclass</a>
+    </div>
+    <button class="prompt-toggle" onclick="toggle('p3')">▶ Show prompt</button>
+    <div class="prompt-box" id="p3">Ok now create a new iteration of the site that respects the ci of MAI at mai-group.com. make. Sure you keep the old versions.
+
+---
+
+Applied via sed transformations + manual edits:
+- Replaced Inter → DM Sans (Google Fonts)
+- Color scheme: #0057ff/#7c3aed → #D93C00/#2B333F
+- Accent soft: #e8efff → #fdf0eb
+- Accent dark: #0044cc → #b53300
+- UX pink mapped to #D93C00
+- Added MAI Group logo SVG in hero (index) and topnav (masterclass)
+- Updated footer branding to "MAI Group"</div>
+  </div>
+
+  <!-- V2 -->
+  <div class="version">
+    <div class="version-header">
+      <span class="version-tag archived">Archived</span>
+      <span class="date">2026-02-13</span>
+    </div>
+    <h2>v2 — Full Interactive Masterclass</h2>
+    <p>Complete interactive course with sidebar navigation, 12 chapters, quizzes, live code editor, scorecard, agent walkthrough simulation, and UX/Dev handoff templates. Blue/purple color scheme with Inter font.</p>
+    <div class="links">
+      <a href="v2/index.html">Landing Page</a>
+      <a href="v2/masterclass.html">Full Masterclass</a>
+    </div>
+    <button class="prompt-toggle" onclick="toggle('p2')">▶ Show prompt</button>
+    <div class="prompt-box" id="p2">The original prompt that created v2 was part of an iterative session building an interactive masterclass website for UX designers about designing interfaces that work for both humans and AI agents.
+
+Key requirements:
+- Interactive course format with chapter navigation
+- Sidebar with progress tracking
+- Before/after code comparisons
+- Quizzes with instant feedback
+- Live HTML editor with preview
+- Agent-friendliness scorecard
+- UX vs Dev handoff templates
+- Influence map showing UX designer's control areas
+- Agent walkthrough simulation log
+- Checklists for daily workflow
+- Focus on 5 layers: Semantic HTML, Structured Data, API Design, Form Structure, Content Readability</div>
+  </div>
+
+  <!-- V1 -->
+  <div class="version">
+    <div class="version-header">
+      <span class="version-tag archived">Archived</span>
+      <span class="date">2026-02-13</span>
+    </div>
+    <h2>v1 — Initial Landing + Content</h2>
+    <p>First iteration with landing page and content-focused masterclass page. Clean minimal design with Inter font, blue/purple gradients. Single-scroll layout.</p>
+    <div class="links">
+      <a href="v1/index.html">Landing Page</a>
+      <a href="v1/masterclass.html">Full Masterclass</a>
+    </div>
+    <button class="prompt-toggle" onclick="toggle('p1')">▶ Show prompt</button>
+    <div class="prompt-box" id="p1">Initial prompt created the masterclass concept "Design for LLMs and Humans" — a 3-hour hands-on workshop for UX designers covering:
+
+- Why AI agents are a new user group
+- The 5 layers of agent-friendly design (Semantic HTML, Structured Data, API Design, Form Structure, Content Readability)
+- Before/after code examples
+- Workshop flow from audit to redesign
+- Target audience: UX Designers, UI Developers, Product Designers, Frontend Engineers
+
+Single-page layout with hero, problem cards, numbered layers, timeline flow, takeaway box, and audience tags.</div>
+  </div>
+
+</div>
+
+<footer>MAI Group — Internal Version Tracker</footer>
+
+<script>
+function toggle(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+  const btn = el.previousElementSibling;
+  btn.textContent = el.classList.contains('open') ? '▼ Hide prompt' : '▶ Show prompt';
+}
+</script>
+</body>
+</html>
